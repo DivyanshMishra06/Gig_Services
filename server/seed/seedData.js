@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+
 const dotenv = require('dotenv');
 const path = require('path');
 
@@ -65,11 +65,10 @@ async function seedDatabase() {
     console.log(`Seeded ${createdCoops.length} cooperatives`);
 
     // Create admin user
-    const adminPassword = await bcrypt.hash('admin123', 10);
     const admin = await User.create({
       name: 'Admin User',
       email: 'admin@coopgig.com',
-      password: adminPassword,
+      password: 'admin123',
       phone: '9999999999',
       role: 'admin',
       location: { type: 'Point', coordinates: [79.432, 28.367], address: 'Civil Lines', city: 'Bareilly', state: 'UP', pincode: '243001' }
@@ -77,11 +76,10 @@ async function seedDatabase() {
     console.log('Created admin user: admin@coopgig.com / admin123');
 
     // Create customer user
-    const customerPassword = await bcrypt.hash('customer123', 10);
     const customer = await User.create({
       name: 'Rahul Gupta',
       email: 'customer@demo.com',
-      password: customerPassword,
+      password: 'customer123',
       phone: '9888888888',
       role: 'customer',
       location: { type: 'Point', coordinates: [79.430, 28.368], address: 'MG Road, Bareilly', city: 'Bareilly', state: 'UP', pincode: '243001' },
@@ -94,11 +92,11 @@ async function seedDatabase() {
 
     // Create worker users and profiles
     for (const wp of workerProfiles) {
-      const hashedPassword = await bcrypt.hash('worker123', 10);
+
       const user = await User.create({
         name: wp.name,
         email: wp.email,
-        password: hashedPassword,
+        password: 'worker123',
         phone: wp.phone,
         role: 'worker',
         location: { type: 'Point', coordinates: wp.coordinates, address: `${wp.city} Area`, city: wp.city, state: 'UP' }
