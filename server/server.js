@@ -8,8 +8,20 @@ dotenv.config();
 const app = express();
 
 // Middleware
+const allowedOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map(s => s.trim())
+  : null;
+
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: allowedOrigins
+    ? function(origin, callback) {
+        // Allow requests with no origin (e.g. server-to-server, mobile apps)
+        if (!origin || allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        return callback(null, false);
+      }
+    : true,
   credentials: true
 }));
 app.use(express.json());
