@@ -110,14 +110,14 @@ export default function WorkerWelfare() {
               </div>
             ))}
           </div>
-          <div style={{ marginTop: '20px', padding: '16px', background: 'rgba(108,92,231,0.08)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--primary-light)' }}>
+          <div style={{ marginTop: '20px', padding: '16px', background: 'rgba(11,143,77,0.06)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--primary)' }}>
             📚 Complete training programs to earn certifications and increase your profile visibility.
           </div>
         </div>
       </div>
 
       {/* Cooperative Message */}
-      <div className="card" style={{ marginTop: '24px', background: 'linear-gradient(135deg, rgba(108,92,231,0.1), rgba(0,210,211,0.1))' }}>
+      <div className="card" style={{ marginTop: '24px', background: 'linear-gradient(135deg, rgba(11,143,77,0.06), rgba(245,130,58,0.06))' }}>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '12px' }}>🤝 Your Cooperative Advantage</h3>
         <p style={{ color: 'var(--text-secondary)', lineHeight: '1.7', fontSize: '0.95rem' }}>
           As a cooperative member, you own a share of the platform. Your 5% contribution goes directly to the welfare fund

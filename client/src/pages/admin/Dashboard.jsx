@@ -28,8 +28,8 @@ export default function AdminDashboard() {
   };
 
   const pieData = [
-    { name: 'Verified', value: s.verifiedWorkers, color: '#00B894' },
-    { name: 'Pending', value: s.totalWorkers - s.verifiedWorkers, color: '#FDCB6E' }
+    { name: 'Verified', value: s.verifiedWorkers, color: '#0B8F4D' },
+    { name: 'Pending', value: s.totalWorkers - s.verifiedWorkers, color: '#F5823A' }
   ];
 
   const revenueData = [
@@ -100,14 +100,14 @@ export default function AdminDashboard() {
           <h3>Revenue Trend</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={revenueData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="month" stroke="#72738C" fontSize={12} />
-              <YAxis stroke="#72738C" fontSize={12} tickFormatter={v => `₹${(v/1000)}k`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
+              <XAxis dataKey="month" stroke="#94A39A" fontSize={12} />
+              <YAxis stroke="#94A39A" fontSize={12} tickFormatter={v => `₹${(v/1000)}k`} />
               <Tooltip
-                contentStyle={{ background: '#232145', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }}
+                contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E9E4', borderRadius: '8px', color: '#17221B', boxShadow: '0 4px 12px rgba(23,34,27,0.08)' }}
                 formatter={(value) => [`₹${value.toLocaleString()}`, 'Revenue']}
               />
-              <Bar dataKey="revenue" fill="#6C5CE7" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="revenue" fill="#0B8F4D" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
               <Pie data={pieData} cx="50%" cy="50%" innerRadius={70} outerRadius={110} dataKey="value" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
                 {pieData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
-              <Tooltip contentStyle={{ background: '#232145', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} />
+              <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E9E4', borderRadius: '8px', color: '#17221B', boxShadow: '0 4px 12px rgba(23,34,27,0.08)' }} />
             </PieChart>
           </ResponsiveContainer>
         </div>

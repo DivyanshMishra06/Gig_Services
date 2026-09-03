@@ -8,20 +8,30 @@ dotenv.config();
 const app = express();
 
 // Middleware
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(',').map(s => s.trim())
-  : null;
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+// Add production origins from CLIENT_URL env var (comma-separated)
+if (process.env.CLIENT_URL) {
+  process.env.CLIENT_URL.split(',').map(s => s.trim()).forEach(origin => {
+    if (origin && !allowedOrigins.includes(origin)) {
+      allowedOrigins.push(origin);
+    }
+  });
+}
 
 app.use(cors({
-  origin: allowedOrigins
-    ? function(origin, callback) {
-        // Allow requests with no origin (e.g. server-to-server, mobile apps)
-        if (!origin || allowedOrigins.includes(origin)) {
-          return callback(null, true);
-        }
-        return callback(null, false);
-      }
-    : true,
+  origin: function(origin, callback) {
+    // Allow requests with no origin (server-to-server, mobile apps, curl)
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(null, false);
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 app.use(express.json());
@@ -33,6 +43,7 @@ app.use('/api/workers', require('./routes/workers'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/reviews', require('./routes/reviews'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/assistant', require('./routes/assistant'));
 
 // Health check
 app.get('/api/health', (req, res) => {

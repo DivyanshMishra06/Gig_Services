@@ -29,14 +29,14 @@ export default function CustomerDashboard() {
   const completedCount = bookings.filter(b => b.status === 'completed').length;
 
   const quickServices = [
-    { icon: '🔧', name: 'Plumbing', color: '#6C5CE7' },
-    { icon: '⚡', name: 'Electrical', color: '#FDCB6E' },
-    { icon: '❄️', name: 'AC Repair', color: '#00D2D3' },
-    { icon: '🧹', name: 'Cleaning', color: '#00B894' },
-    { icon: '🪚', name: 'Carpentry', color: '#E17055' },
-    { icon: '🎨', name: 'Painting', color: '#A29BFE' },
-    { icon: '🔌', name: 'Appliance', color: '#74B9FF' },
-    { icon: '💇', name: 'Beauty', color: '#FD79A8' }
+    { icon: '🔧', name: 'Plumbing', color: '#0B8F4D' },
+    { icon: '⚡', name: 'Electrical', color: '#F5823A' },
+    { icon: '❄️', name: 'AC Repair', color: '#3B82F6' },
+    { icon: '🧹', name: 'Cleaning', color: '#10B981' },
+    { icon: '🪚', name: 'Carpentry', color: '#D4692E' },
+    { icon: '🎨', name: 'Painting', color: '#8B5CF6' },
+    { icon: '🔌', name: 'Appliance', color: '#3B82F6' },
+    { icon: '💇', name: 'Beauty', color: '#EC4899' }
   ];
 
   if (loading) return <div className="loading-page"><div className="spinner" /></div>;

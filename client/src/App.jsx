@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
+import AIAssistant from './components/AIAssistant';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -24,6 +25,22 @@ function ProtectedRoute({ children, roles }) {
   return children;
 }
 
+function HomeRoute() {
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const focusSearch = searchParams.get('focusSearch') === 'true';
+
+  // If user just logged in from the search flow, show Landing with search focused
+  if (user && focusSearch) return <Landing />;
+  // Normal: logged-in users go to dashboard, guests see Landing
+  if (user) {
+    if (user.role === 'admin') return <Navigate to="/admin" />;
+    if (user.role === 'worker') return <Navigate to="/worker" />;
+    return <Navigate to="/dashboard" />;
+  }
+  return <Landing />;
+}
+
 function AppRoutes() {
   const { user } = useAuth();
 
@@ -36,7 +53,7 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={user ? <Navigate to={getDefaultDashboard()} /> : <Landing />} />
+      <Route path="/" element={<HomeRoute />} />
       <Route path="/login" element={user ? <Navigate to={getDefaultDashboard()} /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to={getDefaultDashboard()} /> : <Register />} />
 
@@ -68,6 +85,7 @@ export default function App() {
       <BrowserRouter>
         <Navbar />
         <AppRoutes />
+        <AIAssistant />
       </BrowserRouter>
     </AuthProvider>
   );

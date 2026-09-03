@@ -23,7 +23,10 @@ export default function Register() {
     setLoading(true);
     try {
       const data = await register(form);
-      if (data.role === 'worker') navigate('/worker');
+      const fromSearch = searchParams.get('from') === 'search';
+      if (fromSearch) {
+        navigate('/?focusSearch=true');
+      } else if (data.role === 'worker') navigate('/worker');
       else navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed.');

@@ -46,13 +46,13 @@ export default function AdminForecast() {
               <h3>Expected Demand vs Current Workers</h3>
               <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={forecastData.slice(0, 8)} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis type="number" stroke="#72738C" fontSize={12} />
-                  <YAxis type="category" dataKey="service" stroke="#72738C" fontSize={11} width={100} />
-                  <Tooltip contentStyle={{ background: '#232145', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
+                  <XAxis type="number" stroke="#94A39A" fontSize={12} />
+                  <YAxis type="category" dataKey="service" stroke="#94A39A" fontSize={11} width={100} />
+                  <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E9E4', borderRadius: '8px', color: '#17221B', boxShadow: '0 4px 12px rgba(23,34,27,0.08)' }} />
                   <Legend />
-                  <Bar dataKey="currentWorkers" fill="#6C5CE7" name="Current Workers" radius={[0, 4, 4, 0]} />
-                  <Bar dataKey="expectedDemand" fill="#00D2D3" name="Expected Demand" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="currentWorkers" fill="#0B8F4D" name="Current Workers" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="expectedDemand" fill="#F5823A" name="Expected Demand" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -60,13 +60,13 @@ export default function AdminForecast() {
               <h3>Growth Predictions</h3>
               <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={forecastData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="service" stroke="#72738C" fontSize={10} angle={-30} textAnchor="end" height={60} />
-                  <YAxis stroke="#72738C" fontSize={12} tickFormatter={v => `${v}%`} />
-                  <Tooltip contentStyle={{ background: '#232145', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} formatter={v => `${v}%`} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
+                  <XAxis dataKey="service" stroke="#94A39A" fontSize={10} angle={-30} textAnchor="end" height={60} />
+                  <YAxis stroke="#94A39A" fontSize={12} tickFormatter={v => `${v}%`} />
+                  <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E9E4', borderRadius: '8px', color: '#17221B', boxShadow: '0 4px 12px rgba(23,34,27,0.08)' }} formatter={v => `${v}%`} />
                   <Bar dataKey="growthPercent" name="Growth %" radius={[4, 4, 0, 0]}>
                     {forecastData.map((entry, i) => (
-                      <Cell key={i} fill={entry.growthPercent > 0 ? '#00B894' : '#E17055'} />
+                      <Cell key={i} fill={entry.growthPercent > 0 ? '#0B8F4D' : '#E05C3A'} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -105,16 +105,16 @@ export default function AdminForecast() {
           <h3>Historical Demand by Service (12 Months)</h3>
           <ResponsiveContainer width="100%" height={450}>
             <LineChart data={historicalData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="month" stroke="#72738C" fontSize={12} />
-              <YAxis stroke="#72738C" fontSize={12} />
-              <Tooltip contentStyle={{ background: '#232145', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
+              <XAxis dataKey="month" stroke="#94A39A" fontSize={12} />
+              <YAxis stroke="#94A39A" fontSize={12} />
+              <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E9E4', borderRadius: '8px', color: '#17221B', boxShadow: '0 4px 12px rgba(23,34,27,0.08)' }} />
               <Legend />
-              <Line type="monotone" dataKey="Plumbing" stroke="#6C5CE7" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="Electrical" stroke="#FDCB6E" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="AC Repair" stroke="#00D2D3" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="Cleaning" stroke="#00B894" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="Carpentry" stroke="#E17055" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="Plumbing" stroke="#0B8F4D" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="Electrical" stroke="#F5823A" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="AC Repair" stroke="#3B82F6" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="Cleaning" stroke="#10B981" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="Carpentry" stroke="#EF4444" strokeWidth={2} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -154,8 +154,8 @@ export default function AdminForecast() {
                   </table>
                 </div>
                 {area.recommendation?.length > 0 && (
-                  <div style={{ marginTop: '12px', padding: '12px 16px', background: 'rgba(108,92,231,0.08)', borderRadius: 'var(--radius-md)' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary-light)', marginBottom: '4px' }}>💡 Recommendations</div>
+                  <div style={{ marginTop: '12px', padding: '12px 16px', background: 'rgba(11,143,77,0.06)', borderRadius: 'var(--radius-md)' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', marginBottom: '4px' }}>💡 Recommendations</div>
                     {area.recommendation.map((r, k) => (
                       <div key={k} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>• {r}</div>
                     ))}

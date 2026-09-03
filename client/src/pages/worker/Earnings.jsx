@@ -63,14 +63,14 @@ export default function WorkerEarnings() {
           <h3>Monthly Earnings</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.history}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="month" stroke="#72738C" fontSize={12} />
-              <YAxis stroke="#72738C" fontSize={12} tickFormatter={v => `₹${(v/1000)}k`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
+              <XAxis dataKey="month" stroke="#94A39A" fontSize={12} />
+              <YAxis stroke="#94A39A" fontSize={12} tickFormatter={v => `₹${(v/1000)}k`} />
               <Tooltip
-                contentStyle={{ background: '#232145', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }}
+                contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E9E4', borderRadius: '8px', color: '#17221B', boxShadow: '0 4px 12px rgba(23,34,27,0.08)' }}
                 formatter={(value) => [`₹${value.toLocaleString()}`, 'Earnings']}
               />
-              <Bar dataKey="earnings" fill="#6C5CE7" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="earnings" fill="#0B8F4D" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -80,13 +80,13 @@ export default function WorkerEarnings() {
           <h3>Jobs Completed</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data.history}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis dataKey="month" stroke="#72738C" fontSize={12} />
-              <YAxis stroke="#72738C" fontSize={12} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
+              <XAxis dataKey="month" stroke="#94A39A" fontSize={12} />
+              <YAxis stroke="#94A39A" fontSize={12} />
               <Tooltip
-                contentStyle={{ background: '#232145', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }}
+                contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E9E4', borderRadius: '8px', color: '#17221B', boxShadow: '0 4px 12px rgba(23,34,27,0.08)' }}
               />
-              <Line type="monotone" dataKey="jobs" stroke="#00D2D3" strokeWidth={2} dot={{ fill: '#00D2D3', r: 4 }} />
+              <Line type="monotone" dataKey="jobs" stroke="#F5823A" strokeWidth={2} dot={{ fill: '#F5823A', r: 4 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -113,7 +113,7 @@ export default function WorkerEarnings() {
             <span style={{ fontWeight: 800, fontSize: '1.3rem', color: 'var(--accent)' }}>₹{data.netEarnings?.toLocaleString()}</span>
           </div>
         </div>
-        <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(0,184,148,0.08)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--success)' }}>
+        <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(11,143,77,0.06)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--success)' }}>
           💡 Unlike gig platforms that take 20-30% commission, CoopGig cooperatives only charge 5% which goes to your welfare fund.
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { getServices } from '../../services/api';
 
 const defaultServices = [
@@ -18,8 +18,9 @@ const defaultServices = [
 ];
 
 export default function ServiceBrowse() {
+  const [urlParams] = useSearchParams();
   const [services, setServicesData] = useState(defaultServices);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(urlParams.get('search') || '');
   const [category, setCategory] = useState('All');
 
   useEffect(() => {

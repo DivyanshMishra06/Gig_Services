@@ -4,21 +4,26 @@ import { getWorkers } from '../../services/api';
 
 export default function WorkerSearch() {
   const [searchParams] = useSearchParams();
-  const initialSkill = searchParams.get('skill') || '';
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [skill, setSkill] = useState(initialSkill);
+  const [skill, setSkill] = useState(searchParams.get('skill') || '');
   const [sort, setSort] = useState('');
+  const city = searchParams.get('city') || '';
+
+  useEffect(() => {
+    setSkill(searchParams.get('skill') || '');
+  }, [searchParams]);
 
   useEffect(() => {
     loadWorkers();
-  }, [skill, sort]);
+  }, [skill, sort, city]);
 
   const loadWorkers = async () => {
     setLoading(true);
     try {
       const params = {};
       if (skill) params.skill = skill;
+      if (city) params.city = city;
       if (sort) params.sort = sort;
       params.verified = 'true';
       const { data } = await getWorkers(params);
@@ -30,7 +35,7 @@ export default function WorkerSearch() {
   return (
     <div style={{ padding: '32px 24px', maxWidth: '1200px', margin: '0 auto' }}>
       <div className="page-header">
-        <h1>Find Workers {skill && `— ${skill}`}</h1>
+        <h1>Find Workers {skill && `— ${skill}`}{city && ` in ${city}`}</h1>
         <p>Verified cooperative workers near you</p>
       </div>
 

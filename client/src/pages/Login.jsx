@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
@@ -9,6 +9,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const fromSearch = searchParams.get('from') === 'search';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +18,9 @@ export default function Login() {
     setLoading(true);
     try {
       const data = await login(email, password);
-      if (data.role === 'admin') navigate('/admin');
+      if (fromSearch) {
+        navigate('/?focusSearch=true');
+      } else if (data.role === 'admin') navigate('/admin');
       else if (data.role === 'worker') navigate('/worker');
       else navigate('/dashboard');
     } catch (err) {

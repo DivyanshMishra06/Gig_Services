@@ -19,8 +19,11 @@ API.interceptors.response.use(
   (res) => res,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('coopgig_user');
-      window.location.href = '/login';
+      const url = error.config?.url || '';
+      if (!String(url).includes('/assistant')) {
+        localStorage.removeItem('coopgig_user');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
@@ -66,5 +69,8 @@ export const getDemandForecast = () => API.get('/admin/forecast');
 export const getWorkforceAllocation = () => API.get('/admin/allocation');
 export const getNotifications = () => API.get('/admin/notifications');
 export const markNotificationRead = (id) => API.put(`/admin/notifications/${id}/read`);
+
+// Assistant
+export const sendAssistantMessage = (data) => API.post('/assistant/chat', data);
 
 export default API;

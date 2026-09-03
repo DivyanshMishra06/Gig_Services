@@ -4,7 +4,7 @@ const { calculateMatchingScore, haversineDistance } = require('../services/match
 
 exports.getWorkers = async (req, res) => {
   try {
-    const { skill, lat, lng, verified, availability, minRating, maxDistance, sort } = req.query;
+    const { skill, city, lat, lng, verified, availability, minRating, maxDistance, sort } = req.query;
     let query = {};
 
     if (skill) {
@@ -12,6 +12,9 @@ exports.getWorkers = async (req, res) => {
         { skills: { $regex: skill, $options: 'i' } },
         { primarySkill: { $regex: skill, $options: 'i' } }
       ];
+    }
+    if (city) {
+      query['location.city'] = { $regex: city, $options: 'i' };
     }
     if (verified === 'true') query.verificationStatus = 'verified';
     if (availability) query.availability = availability;
