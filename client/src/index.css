@@ -166,6 +166,40 @@ input:focus, select:focus, textarea:focus {
 .btn-lg { padding: 16px 32px; font-size: 1.1rem; }
 .btn-icon { padding: 10px; border-radius: var(--radius-md); }
 
+/* Customer dashboard */
+.booking-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px 9px 16px;
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 8%, var(--bg-card));
+  color: var(--primary);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--primary) 10%, transparent);
+  transition: transform var(--transition), background var(--transition), color var(--transition), box-shadow var(--transition);
+}
+
+.booking-view-all svg { transition: transform var(--transition); }
+
+.booking-view-all:hover {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--primary) 28%, transparent);
+  transform: translateY(-2px);
+}
+
+.booking-view-all:hover svg { transform: translateX(3px); }
+
+.booking-view-all:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  outline-offset: 3px;
+}
+
 /* Cards */
 .card {
   background: var(--bg-card);
