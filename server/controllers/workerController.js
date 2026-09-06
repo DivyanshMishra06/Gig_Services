@@ -4,7 +4,10 @@ const { calculateMatchingScore, haversineDistance } = require('../services/match
 
 exports.getWorkers = async (req, res) => {
   try {
-    const { skill, city, lat, lng, verified, availability, minRating, maxDistance, sort } = req.query;
+    const {
+      skill, city, lat, lng, verified, availability, minRating, maxDistance, sort,
+      minPrice, maxPrice, minExperience
+    } = req.query;
     let query = {};
 
     if (skill) {
@@ -19,6 +22,20 @@ exports.getWorkers = async (req, res) => {
     if (verified === 'true') query.verificationStatus = 'verified';
     if (availability) query.availability = availability;
     if (minRating) query.rating = { $gte: parseFloat(minRating) };
+
+    const parsedMinPrice = Number(minPrice);
+    const parsedMaxPrice = Number(maxPrice);
+    if (Number.isFinite(parsedMinPrice) && parsedMinPrice >= 0) {
+      query.startingPrice = { $gte: parsedMinPrice };
+    }
+    if (Number.isFinite(parsedMaxPrice) && parsedMaxPrice >= 0) {
+      query.startingPrice = { ...(query.startingPrice || {}), $lte: parsedMaxPrice };
+    }
+
+    const parsedMinExperience = Number(minExperience);
+    if (Number.isFinite(parsedMinExperience) && parsedMinExperience >= 0) {
+      query.experience = { $gte: parsedMinExperience };
+    }
 
     let workers = await Worker.find(query).populate('userId', 'name email phone avatar');
 
