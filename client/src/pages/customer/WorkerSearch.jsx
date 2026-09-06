@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { getWorkers } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 export default function WorkerSearch() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,24 +52,24 @@ export default function WorkerSearch() {
   return (
     <div style={{ padding: '32px 24px', maxWidth: '1200px', margin: '0 auto' }}>
       <div className="page-header">
-        <h1>Find Workers {skill && `— ${skill}`}{location && ` in ${location}`}</h1>
-        <p>Verified cooperative workers near you</p>
+        <h1>{t('search.title', { skill: skill ? ` — ${skill}` : '', city: city ? t('search.inCity', { city }) : '' })}</h1>
+        <p>{t('search.subtitle')}</p>
       </div>
 
       <div className="filters-bar">
         <div className="search-bar" style={{ flex: 1 }}>
           <span className="search-icon">🔍</span>
           <input
-            placeholder="Search by skill (e.g. Plumbing, Electrical)..."
+            placeholder={t('search.placeholder')}
             value={skill}
             onChange={e => setSkill(e.target.value)}
             style={{ paddingLeft: '44px' }}
           />
         </div>
         <select className="filter-select" value={sort} onChange={e => setSort(e.target.value)}>
-          <option value="">Best Match</option>
-          <option value="rating">Top Rated</option>
-          <option value="price">Lowest Price</option>
+          <option value="">{t('common.bestMatch')}</option>
+          <option value="rating">{t('common.topRated')}</option>
+          <option value="price">{t('common.lowestPrice')}</option>
         </select>
       </div>
 
@@ -89,8 +91,8 @@ export default function WorkerSearch() {
       ) : workers.length === 0 ? (
         <div className="empty-state">
           <div className="icon">👷</div>
-          <h3>No workers found</h3>
-          <p>Try a different search or remove filters</p>
+          <h3>{t('common.noWorkers')}</h3>
+          <p>{t('common.tryDifferentSearch')}</p>
         </div>
       ) : (
         <div className="grid-2">
@@ -101,20 +103,20 @@ export default function WorkerSearch() {
                   {(w.userName || w.userId?.name || 'W').charAt(0).toUpperCase()}
                 </div>
                 <div className="worker-info">
-                  <h3>{w.userName || w.userId?.name || 'Worker'}</h3>
+                  <h3>{w.userName || w.userId?.name || t('common.worker')}</h3>
                   <span className="skill">{w.primarySkill}</span>
                 </div>
                 <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
                   <div className={`badge ${w.verificationStatus === 'verified' ? 'badge-success' : 'badge-warning'}`}>
-                    {w.verificationStatus === 'verified' ? '✓ Verified' : 'Pending'}
+                    {w.verificationStatus === 'verified' ? `✓ ${t('common.verified')}` : t('common.pending')}
                   </div>
                 </div>
               </div>
 
               <div className="worker-meta">
                 <div className="worker-meta-item">⭐ <span className="value">{w.rating || '0'}</span> ({w.totalRatings || 0})</div>
-                <div className="worker-meta-item">🛠️ <span className="value">{w.experience || 0}</span> yrs</div>
-                <div className="worker-meta-item">✅ <span className="value">{w.completedJobs || 0}</span> jobs</div>
+                <div className="worker-meta-item">🛠️ <span className="value">{w.experience || 0}</span> {t('search.years')}</div>
+                <div className="worker-meta-item">✅ <span className="value">{w.completedJobs || 0}</span> {t('search.jobs')}</div>
                 {w.location?.city && <div className="worker-meta-item">📍 <span className="value">{w.location.city}</span></div>}
                 {w._distance && <div className="worker-meta-item">📍 <span className="value">{w._distance}</span> km</div>}
               </div>
@@ -134,9 +136,12 @@ export default function WorkerSearch() {
               <div className="worker-card-footer">
                 <div>
                   <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--accent)' }}>₹{w.startingPrice || 199}</span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}> onwards</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}> {t('common.onwards')}</span>
                 </div>
-                <Link to={`/book/${w._id}`} className="btn btn-primary btn-sm">Book Now</Link>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Link to={`/workers/${w._id}`} className="btn btn-secondary btn-sm">View profile</Link>
+                  <Link to={`/book/${w._id}`} className="btn btn-primary btn-sm">{t('common.bookNow')}</Link>
+                </div>
               </div>
             </div>
           ))}

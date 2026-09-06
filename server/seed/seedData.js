@@ -67,13 +67,13 @@ async function seedDatabase() {
     // Create admin user
     const admin = await User.create({
       name: 'Admin User',
-      email: 'admin@coopgig.com',
+      email: 'admin@activesetu.com',
       password: 'admin123',
       phone: '9999999999',
       role: 'admin',
       location: { type: 'Point', coordinates: [79.432, 28.367], address: 'Civil Lines', city: 'Bareilly', state: 'UP', pincode: '243001' }
     });
-    console.log('Created admin user: admin@coopgig.com / admin123');
+    console.log('Created admin user: admin@activesetu.com / admin123');
 
     // Create customer user
     const customer = await User.create({
@@ -141,7 +141,7 @@ async function seedDatabase() {
 
     console.log('\n✅ Database seeded successfully!');
     console.log('\nDemo Accounts:');
-    console.log('  Admin:    admin@coopgig.com / admin123');
+    console.log('  Admin:    admin@activesetu.com / admin123');
     console.log('  Customer: customer@demo.com / customer123');
     console.log('  Worker:   ramesh@demo.com / worker123 (or any worker email)');
     process.exit(0);
