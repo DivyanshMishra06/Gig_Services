@@ -114,7 +114,7 @@ export default function WorkerEarnings() {
           </div>
         </div>
         <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(11,143,77,0.06)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--success)' }}>
-          💡 Unlike gig platforms that take 20-30% commission, CoopGig cooperatives only charge 5% which goes to your welfare fund.
+          💡 Unlike gig platforms that take 20-30% commission, ActiveSetu cooperatives only charge 5% which goes to your welfare fund.
         </div>
       </div>
     </div>

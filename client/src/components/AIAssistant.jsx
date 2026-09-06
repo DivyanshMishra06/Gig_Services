@@ -2,21 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { sendAssistantMessage } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-
-const WELCOME =
-  "Hi! I'm CoopGig AI Assistant 🤖\nTell me what service you need, and I'll help you find the right worker.";
-
-const QUICK_ACTIONS = [
-  { label: 'Find a Plumber', message: 'I need a plumber' },
-  { label: 'Find an Electrician', message: 'I need an electrician' },
-  { label: 'AC Repair', message: 'I need AC repair' },
-  { label: 'Find a Cleaner', message: 'I need a cleaner' }
-];
-
-function friendlyError(err) {
-  if (!err.response) return 'Network error. Please check your connection and try again.';
-  return err.response.data?.message || 'Something went wrong. Please try again.';
-}
+import { useTranslation } from 'react-i18next';
 
 function workerLine(w) {
   const bits = [];
@@ -29,11 +15,19 @@ function workerLine(w) {
 
 export default function AIAssistant() {
   const { user } = useAuth();
+  const { t, i18n } = useTranslation();
+  const welcome = t('assistant.welcome');
+  const quickActions = [
+    { label: t('assistant.findPlumber'), message: 'I need a plumber' },
+    { label: t('assistant.findElectrician'), message: 'I need an electrician' },
+    { label: t('assistant.acRepair'), message: 'I need AC repair' },
+    { label: t('assistant.findCleaner'), message: 'I need a cleaner' }
+  ];
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
   const [messages, setMessages] = useState([
-    { id: 'welcome', role: 'assistant', content: WELCOME, welcome: true }
+    { id: 'welcome', role: 'assistant', content: welcome, welcome: true }
   ]);
   const listRef = useRef(null);
   const inputRef = useRef(null);
@@ -49,6 +43,12 @@ export default function AIAssistant() {
       setTimeout(() => inputRef.current?.focus(), 200);
     }
   }, [open]);
+
+  useEffect(() => {
+    setMessages((previous) => previous.length === 1 && previous[0].welcome
+      ? [{ ...previous[0], content: welcome }]
+      : previous);
+  }, [welcome]);
 
   const historyForApi = messages
     .filter((m) => !m.welcome && (m.role === 'user' || m.role === 'assistant') && m.content)
@@ -66,7 +66,8 @@ export default function AIAssistant() {
     try {
       const { data } = await sendAssistantMessage({
         message: trimmed,
-        history: historyForApi
+        history: historyForApi,
+        language: i18n.language === 'hi' ? 'hi' : 'en'
       });
       setMessages((prev) => [
         ...prev,
@@ -81,7 +82,7 @@ export default function AIAssistant() {
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { id: `e-${Date.now()}`, role: 'assistant', content: friendlyError(err), error: true }
+        { id: `e-${Date.now()}`, role: 'assistant', content: !err.response ? t('assistant.networkError') : (err.response.data?.message || t('assistant.error')), error: true }
       ]);
     } finally {
       setSending(false);
@@ -100,10 +101,10 @@ export default function AIAssistant() {
   return (
     <div className="ai-widget">
       {open && (
-        <div className="ai-panel" role="dialog" aria-label="CoopGig AI Assistant">
+        <div className="ai-panel" role="dialog" aria-label="ActiveSetu AI Assistant">
           <div className="ai-panel-header">
-            <span>🤖 CoopGig AI Assistant</span>
-            <button type="button" className="ai-panel-close" onClick={() => setOpen(false)} aria-label="Close">
+            <span>🤖 ActiveSetu AI Assistant</span>
+            <button type="button" className="ai-panel-close" onClick={() => setOpen(false)} aria-label={t('assistant.close')}>
               ×
             </button>
           </div>
@@ -120,13 +121,13 @@ export default function AIAssistant() {
                     <div className="ai-worker-list">
                       {m.workers.map((w) => (
                         <div className="ai-worker-chip" key={w.id}>
-                          <div className="ai-worker-chip-name">{w.name || 'Worker'}</div>
+                          <div className="ai-worker-chip-name">{w.name || t('common.worker')}</div>
                           <div className="ai-worker-chip-meta">
                             {[w.primarySkill, workerLine(w)].filter(Boolean).join(' · ')}
                           </div>
                           {user?.role === 'customer' && w.id && (
                             <Link to={`/book/${w.id}`} className="ai-chip-link" onClick={() => setOpen(false)}>
-                              Book
+                              {t('assistant.book')}
                             </Link>
                           )}
                         </div>
@@ -139,7 +140,7 @@ export default function AIAssistant() {
                       className="btn btn-primary btn-sm ai-action-btn"
                       onClick={() => setOpen(false)}
                     >
-                      {m.action.label || 'View Results'}
+                      {m.action.label || t('assistant.viewResults')}
                     </Link>
                   )}
                 </div>
@@ -149,7 +150,7 @@ export default function AIAssistant() {
 
             {showQuick && (
               <div className="ai-quick-actions">
-                {QUICK_ACTIONS.map((q) => (
+                {quickActions.map((q) => (
                   <button key={q.label} type="button" className="ai-quick-btn" onClick={() => send(q.message)}>
                     {q.label}
                   </button>
@@ -180,11 +181,11 @@ export default function AIAssistant() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={onKeyDown}
-              placeholder="Type your message..."
+              placeholder={t('assistant.typeMessage')}
               disabled={sending}
             />
             <button type="submit" className="btn btn-primary btn-sm" disabled={sending || !input.trim()}>
-              Send
+              {t('assistant.send')}
             </button>
           </form>
         </div>
@@ -196,7 +197,7 @@ export default function AIAssistant() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
-        {open ? '✕ Close' : '🤖 Ask CoopGig'}
+        {open ? `✕ ${t('assistant.close')}` : '🤖 Ask ActiveSetu'}
       </button>
     </div>
   );
