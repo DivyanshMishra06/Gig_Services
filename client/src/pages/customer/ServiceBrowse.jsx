@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { getServices } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 const defaultServices = [
   { _id: '1', name: 'Plumbing', icon: '🔧', description: 'Pipe fixing, leak repair, bathroom fitting', basePrice: 299, category: 'Home Repair' },
@@ -18,6 +19,7 @@ const defaultServices = [
 ];
 
 export default function ServiceBrowse() {
+  const { t } = useTranslation();
   const [urlParams] = useSearchParams();
   const [services, setServicesData] = useState(defaultServices);
   const [search, setSearch] = useState(urlParams.get('search') || '');
@@ -41,22 +43,22 @@ export default function ServiceBrowse() {
   return (
     <div style={{ padding: '32px 24px', maxWidth: '1200px', margin: '0 auto' }}>
       <div className="page-header">
-        <h1>Browse Services</h1>
-        <p>Find the right service for your needs</p>
+        <h1>{t('services.browse')}</h1>
+        <p>{t('services.subtitle')}</p>
       </div>
 
       <div className="filters-bar">
         <div className="search-bar" style={{ flex: 1 }}>
           <span className="search-icon">🔍</span>
           <input
-            placeholder="Search services..."
+            placeholder={t('services.placeholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{ paddingLeft: '44px' }}
           />
         </div>
         <select className="filter-select" value={category} onChange={e => setCategory(e.target.value)}>
-          {categories.map(c => <option key={c} value={c}>{c}</option>)}
+          {categories.map(c => <option key={c} value={c}>{c === 'All' ? t('services.all') : c}</option>)}
         </select>
       </div>
 
@@ -67,8 +69,8 @@ export default function ServiceBrowse() {
               <div className="icon">{s.icon}</div>
               <h3>{s.name}</h3>
               <p>{s.description}</p>
-              <div className="price">Starting ₹{s.basePrice}</div>
-              {s.isEmergency && <div className="badge badge-danger" style={{ marginTop: '12px' }}>🚨 Emergency Available</div>}
+              <div className="price">{t('services.starting')} ₹{s.basePrice}</div>
+              {s.isEmergency && <div className="badge badge-danger" style={{ marginTop: '12px' }}>🚨 {t('services.emergency')}</div>}
             </div>
           </Link>
         ))}

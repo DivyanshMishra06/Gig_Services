@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function Register() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const defaultRole = searchParams.get('role') || 'customer';
 
@@ -29,7 +31,7 @@ export default function Register() {
       } else if (data.role === 'worker') navigate('/worker');
       else navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed.');
+      setError(err.response?.data?.message || t('auth.registrationFailed'));
     } finally {
       setLoading(false);
     }
@@ -38,8 +40,8 @@ export default function Register() {
   return (
     <div className="auth-page">
       <div className="auth-card animate-in" style={{ maxWidth: '500px' }}>
-        <h1>Join CoopGig</h1>
-        <p className="subtitle">Create your account and start {form.role === 'worker' ? 'earning' : 'booking services'}</p>
+        <h1>{t('auth.join')}</h1>
+        <p className="subtitle">{t('auth.createStart', { activity: form.role === 'worker' ? t('auth.earning') : t('auth.bookingServices') })}</p>
 
         {error && (
           <div style={{ background: 'rgba(225,112,85,0.1)', border: '1px solid var(--danger)', borderRadius: 'var(--radius-md)', padding: '12px 16px', marginBottom: '20px', color: 'var(--danger)', fontSize: '0.9rem' }}>
@@ -49,37 +51,37 @@ export default function Register() {
 
         {/* Role Tabs */}
         <div className="tabs" style={{ marginBottom: '24px' }}>
-          <button className={`tab ${form.role === 'customer' ? 'active' : ''}`} onClick={() => setForm({ ...form, role: 'customer' })}>👤 Customer</button>
-          <button className={`tab ${form.role === 'worker' ? 'active' : ''}`} onClick={() => setForm({ ...form, role: 'worker' })}>🔧 Worker</button>
+          <button className={`tab ${form.role === 'customer' ? 'active' : ''}`} onClick={() => setForm({ ...form, role: 'customer' })}>👤 {t('auth.customer')}</button>
+          <button className={`tab ${form.role === 'worker' ? 'active' : ''}`} onClick={() => setForm({ ...form, role: 'worker' })}>🔧 {t('auth.worker')}</button>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Full Name</label>
-            <input name="name" placeholder="Enter your full name" value={form.name} onChange={handleChange} required />
+            <label>{t('auth.fullName')}</label>
+            <input name="name" placeholder={t('auth.enterFullName')} value={form.name} onChange={handleChange} required />
           </div>
           <div className="form-row">
             <div className="form-group">
-              <label>Email</label>
+              <label>{t('auth.email')}</label>
               <input name="email" type="email" placeholder="your@email.com" value={form.email} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label>Phone</label>
+              <label>{t('auth.phone')}</label>
               <input name="phone" placeholder="9876543210" value={form.phone} onChange={handleChange} required />
             </div>
           </div>
           <div className="form-group">
-            <label>Password</label>
-            <input name="password" type="password" placeholder="Min 6 characters" value={form.password} onChange={handleChange} required minLength={6} />
+            <label>{t('auth.password')}</label>
+            <input name="password" type="password" placeholder={t('auth.minCharacters')} value={form.password} onChange={handleChange} required minLength={6} />
           </div>
 
           {form.role === 'worker' && (
             <>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Primary Skill</label>
+                  <label>{t('auth.primarySkill')}</label>
                   <select name="primarySkill" value={form.primarySkill} onChange={handleChange} required>
-                    <option value="">Select skill</option>
+                    <option value="">{t('auth.selectSkill')}</option>
                     <option>Plumbing</option><option>Electrical</option><option>AC Repair</option>
                     <option>Cleaning</option><option>Carpentry</option><option>Painting</option>
                     <option>Appliance Repair</option><option>Home Caregiver</option><option>Driver</option>
@@ -87,24 +89,24 @@ export default function Register() {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label>Experience (years)</label>
+                  <label>{t('auth.experienceYears')}</label>
                   <input name="experience" type="number" min="0" value={form.experience} onChange={handleChange} />
                 </div>
               </div>
               <div className="form-group">
-                <label>Cooperative Name (optional)</label>
+                <label>{t('auth.cooperativeName')}</label>
                 <input name="cooperativeName" placeholder="e.g. Bareilly Skilled Workers Cooperative" value={form.cooperativeName} onChange={handleChange} />
               </div>
             </>
           )}
 
           <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Creating Account...' : 'Create Account'}
+            {loading ? t('auth.creating') : t('auth.createAccount')}
           </button>
         </form>
 
         <div className="auth-footer">
-          Already have an account? <Link to="/login">Sign in</Link>
+          {t('auth.haveAccount')} <Link to="/login">{t('auth.signIn')}</Link>
         </div>
       </div>
     </div>

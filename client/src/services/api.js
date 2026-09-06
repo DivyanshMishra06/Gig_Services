@@ -8,7 +8,7 @@ const API = axios.create({
 });
 
 API.interceptors.request.use((config) => {
-  const user = JSON.parse(localStorage.getItem('coopgig_user') || 'null');
+  const user = JSON.parse(localStorage.getItem('activesetu_user') || localStorage.getItem('coopgig_user') || 'null');
   if (user?.token) {
     config.headers.Authorization = `Bearer ${user.token}`;
   }
@@ -21,6 +21,7 @@ API.interceptors.response.use(
     if (error.response?.status === 401) {
       const url = error.config?.url || '';
       if (!String(url).includes('/assistant')) {
+        localStorage.removeItem('activesetu_user');
         localStorage.removeItem('coopgig_user');
         window.location.href = '/login';
       }

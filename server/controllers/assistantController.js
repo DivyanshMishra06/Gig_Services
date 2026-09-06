@@ -10,7 +10,8 @@ exports.chat = async (req, res) => {
     const result = await runAssistant({
       message: String(raw).trim().slice(0, 2000),
       history: req.body?.history,
-      user: req.user || null
+      user: req.user || null,
+      language: req.body?.language === 'hi' ? 'hi' : 'en'
     });
 
     res.json(result);
