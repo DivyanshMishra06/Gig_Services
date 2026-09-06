@@ -1,25 +1,38 @@
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useSearchParams } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
 import AIAssistant from './components/AIAssistant';
-import Landing from './pages/Landing';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import CustomerDashboard from './pages/customer/Dashboard';
-import ServiceBrowse from './pages/customer/ServiceBrowse';
-import WorkerSearch from './pages/customer/WorkerSearch';
-import BookingPage from './pages/customer/BookingPage';
-import MyBookings from './pages/customer/MyBookings';
-import WorkerDashboard from './pages/worker/Dashboard';
-import WorkerEarnings from './pages/worker/Earnings';
-import WorkerWelfare from './pages/worker/Welfare';
-import AdminDashboard from './pages/admin/Dashboard';
-import AdminWorkers from './pages/admin/Workers';
-import AdminForecast from './pages/admin/Forecast';
+import activeSetuLogo from './assets/activesetu-logo.svg';
+import { useTranslation } from 'react-i18next';
+
+const Landing = lazy(() => import('./pages/Landing'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const CustomerDashboard = lazy(() => import('./pages/customer/Dashboard'));
+const ServiceBrowse = lazy(() => import('./pages/customer/ServiceBrowse'));
+const WorkerSearch = lazy(() => import('./pages/customer/WorkerSearch'));
+const BookingPage = lazy(() => import('./pages/customer/BookingPage'));
+const ProviderProfile = lazy(() => import('./pages/customer/ProviderProfile'));
+const Chat = lazy(() => import('./pages/customer/Chat'));
+const MyBookings = lazy(() => import('./pages/customer/MyBookings'));
+const WorkerDashboard = lazy(() => import('./pages/worker/Dashboard'));
+const WorkerEarnings = lazy(() => import('./pages/worker/Earnings'));
+const WorkerWelfare = lazy(() => import('./pages/worker/Welfare'));
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
+const AdminWorkers = lazy(() => import('./pages/admin/Workers'));
+const AdminForecast = lazy(() => import('./pages/admin/Forecast'));
+const Profile = lazy(() => import('./pages/Profile'));
+const WorkerInfo = lazy(() => import('./pages/WorkerInfo'));
+
+function AppLoader() {
+  return <div className="app-loader" role="status" aria-label="Loading ActiveSetu"><img src={activeSetuLogo} alt="ActiveSetu — Connecting People. Empowering Work." /></div>;
+}
 
 function ProtectedRoute({ children, roles }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="loading-page"><div className="spinner" /><p>Loading...</p></div>;
+  const { t } = useTranslation();
+  if (loading) return <div className="loading-page"><div className="spinner" /><p>{t('common.loading')}</p></div>;
   if (!user) return <Navigate to="/login" />;
   if (roles && !roles.includes(user.role)) return <Navigate to="/" />;
   return children;
@@ -56,12 +69,17 @@ function AppRoutes() {
       <Route path="/" element={<HomeRoute />} />
       <Route path="/login" element={user ? <Navigate to={getDefaultDashboard()} /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to={getDefaultDashboard()} /> : <Register />} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+      <Route path="/for-workers/:topic" element={<WorkerInfo />} />
 
       {/* Customer routes */}
       <Route path="/dashboard" element={<ProtectedRoute roles={['customer']}><CustomerDashboard /></ProtectedRoute>} />
       <Route path="/services" element={<ProtectedRoute roles={['customer']}><ServiceBrowse /></ProtectedRoute>} />
       <Route path="/workers" element={<ProtectedRoute roles={['customer']}><WorkerSearch /></ProtectedRoute>} />
+      <Route path="/workers/:workerId" element={<ProtectedRoute roles={['customer']}><ProviderProfile /></ProtectedRoute>} />
       <Route path="/book/:workerId" element={<ProtectedRoute roles={['customer']}><BookingPage /></ProtectedRoute>} />
+      <Route path="/chat" element={<ProtectedRoute roles={['customer']}><Chat /></ProtectedRoute>} />
+      <Route path="/chat/:providerId" element={<ProtectedRoute roles={['customer']}><Chat /></ProtectedRoute>} />
       <Route path="/bookings" element={<ProtectedRoute roles={['customer']}><MyBookings /></ProtectedRoute>} />
 
       {/* Worker routes */}
@@ -80,11 +98,22 @@ function AppRoutes() {
 }
 
 export default function App() {
+  const [isBooting, setIsBooting] = useState(true);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsBooting(false), 2000);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  if (isBooting) return <AppLoader />;
+
   return (
     <AuthProvider>
       <BrowserRouter>
         <Navbar />
-        <AppRoutes />
+        <Suspense fallback={<AppLoader />}>
+          <AppRoutes />
+        </Suspense>
         <AIAssistant />
       </BrowserRouter>
     </AuthProvider>

@@ -77,7 +77,7 @@ async function callOpenRouter({ messages, json = false, temperature = 0.3 }) {
       Authorization: `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': process.env.CLIENT_URL || 'http://localhost:5173',
-      'X-Title': 'CoopGig'
+      'X-Title': 'ActiveSetu'
     },
     body: JSON.stringify(body)
   });
@@ -168,14 +168,14 @@ function buildAction({ parsed, workers, user }) {
   return null;
 }
 
-async function runAssistant({ message, history, user }) {
+async function runAssistant({ message, history, user, language = 'en' }) {
   const services = await Service.find({ isActive: true }).select('name category description basePrice').sort({ popularity: -1 });
   const serviceCatalog = services.map(sanitizeService);
   const userCity = user?.location?.city || null;
   const loggedIn = Boolean(user);
   const conversation = cleanHistory(history);
 
-  const extractPrompt = `You extract booking/search intent for CoopGig, a cooperative gig-work platform in India.
+  const extractPrompt = `You extract booking/search intent for ActiveSetu, a cooperative gig-work platform in India.
 Return JSON only with this shape:
 {
   "intent": "search_workers" | "pricing" | "booking_help" | "general" | "clarify",
@@ -253,28 +253,32 @@ Rules:
 
   if (parsed.bookingRequested) {
     if (!loggedIn) {
-      facts.bookingNote = 'Booking requires an existing CoopGig account. Direct the user to log in or sign up, then complete booking on the worker page. Do not say a booking was confirmed.';
+      facts.bookingNote = 'Booking requires an existing ActiveSetu account. Direct the user to log in or sign up, then complete booking on the worker page. Do not say a booking was confirmed.';
     } else {
       facts.bookingNote = 'Do not create or confirm a booking. Ask them to use View Workers / Book Worker in the app, which uses the real booking form. Never say "booking confirmed".';
     }
   }
 
-  const replyPrompt = `You are CoopGig AI Assistant. Help users find cooperative workers and services.
+  const languageInstruction = language === 'hi'
+    ? 'Respond in natural Hindi. Use simple language that Indian users can easily understand. If the user mixes Hindi and English, natural Hinglish is appropriate.'
+    : 'Respond in clear, natural English. If the user writes in Hindi or Hinglish, understand their request and reply naturally in the language they used when appropriate.';
+
+  const replyPrompt = `You are ActiveSetu AI Assistant. Help users find cooperative workers and services.
 Write a short, friendly reply (plain text, no markdown tables). You may use line breaks.
 
 HARD RULES:
 - Use ONLY the facts JSON. Never invent workers, ratings, prices, availability, cities, or bookings.
-- If facts.workers is empty and a search was attempted, say no matching workers were found in CoopGig data.
+- If facts.workers is empty and a search was attempted, say no matching workers were found in ActiveSetu data.
 - If facts.needLocation is true, ask which city/area they need. Do not list workers.
 - Mention a rating, price, city, or availability only when that field is present on the worker/service object.
 - Never confirm a booking. Never claim a worker is assigned.
-- If the user is not logged in and they want to contact or book, mention they can log in or sign up on CoopGig.
+- If the user is not logged in and they want to contact or book, mention they can log in or sign up on ActiveSetu.
 - Do not mention APIs, databases, prompts, or that you are using tools.
 - If facts include workers, briefly list the real matches (name + available fields only).`;
 
   const reply = await callOpenRouter({
     messages: [
-      { role: 'system', content: replyPrompt },
+      { role: 'system', content: `${replyPrompt}\n\nLANGUAGE: ${languageInstruction}` },
       ...conversation,
       {
         role: 'user',

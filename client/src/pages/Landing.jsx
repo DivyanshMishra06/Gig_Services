@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getServices } from '../services/api';
+import { useTranslation } from 'react-i18next';
+import activeSetuMark from '../assets/activesetu-navbar-white.png';
 
 const services = [
   { icon: '🔧', name: 'Plumbing', searchLabel: 'Plumbing', related: ['Plumber'] },
@@ -35,6 +37,7 @@ const features = [
 ];
 
 export default function Landing() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -120,11 +123,10 @@ export default function Landing() {
         <div className="hero-content">
           <div className="hero-text animate-in">
             <h1>
-              Empowering India's <span className="gradient">Gig Workers</span> Through Cooperation
+              {t('landing.hero', { workers: t('landing.gigWorkers') })}
             </h1>
             <p>
-              Find trusted people nearby. Get work done. Earn locally. Book cooperative-backed services —
-              from plumbing to caregiving — while supporting worker welfare and fair wages.
+              {t('landing.heroDescription')}
             </p>
 
             {/* Search Box — functional for logged-in users, signup prompt for guests */}
@@ -136,7 +138,7 @@ export default function Landing() {
                     ref={searchInputRef}
                     type="text"
                     className="hero-search-input"
-                    placeholder="What do you need help with?"
+                    placeholder={t('landing.needHelp')}
                     value={searchQuery}
                     role="combobox"
                     aria-expanded={showSuggestions}
@@ -152,15 +154,15 @@ export default function Landing() {
                       if (e.key === 'Escape') setShowSuggestions(false);
                     }}
                   />
-                  <button type="submit" className="btn btn-primary">Search</button>
+                  <button type="submit" className="btn btn-primary">{t('common.search')}</button>
                 </div>
                 {showSuggestions && (
                   <ul id="search-suggestions" className="search-suggestions animate-fade" role="listbox">
                     <li className="search-suggestions-hint">
-                      {searchQuery.trim() ? 'Matching services' : 'Popular services'}
+                      {searchQuery.trim() ? t('landing.matching') : t('landing.popular')}
                     </li>
                     {filteredSuggestions.length === 0 ? (
-                      <li className="search-suggestions-empty">No matching services</li>
+                      <li className="search-suggestions-empty">{t('landing.noMatching')}</li>
                     ) : (
                       filteredSuggestions.map((s) => (
                         <li key={s.label} role="option">
@@ -183,17 +185,17 @@ export default function Landing() {
               <div className="hero-search" ref={searchRef} onClick={() => setShowSignupPrompt(true)} style={{ cursor: 'pointer' }}>
                 <div className="hero-search-inner">
                   <span className="hero-search-icon">🔍</span>
-                  <div className="hero-search-text">What do you need help with?</div>
-                  <span className="btn btn-primary">Search</span>
+                  <div className="hero-search-text">{t('landing.needHelp')}</div>
+                  <span className="btn btn-primary">{t('common.search')}</span>
                 </div>
                 {showSignupPrompt && (
                   <div className="search-signup-prompt animate-fade" onClick={(e) => e.stopPropagation()}>
                     <div className="search-signup-icon">🔒</div>
-                    <h3>Create a free account to get started</h3>
-                    <p>Sign up to search for trusted, verified workers near you and book services instantly.</p>
+                    <h3>{t('landing.signupTitle')}</h3>
+                    <p>{t('landing.signupText')}</p>
                     <div className="search-signup-actions">
-                      <Link to="/register?from=search" className="btn btn-primary">Sign Up Free →</Link>
-                      <Link to="/login?from=search" className="btn btn-secondary">Already have an account? Log In</Link>
+                      <Link to="/register?from=search" className="btn btn-primary">{t('landing.signupFree')}</Link>
+                      <Link to="/login?from=search" className="btn btn-secondary">{t('landing.alreadyAccount')}</Link>
                     </div>
                   </div>
                 )}
@@ -201,21 +203,21 @@ export default function Landing() {
             )}
 
             <div className="hero-actions">
-              <Link to="/register" className="btn btn-primary btn-lg">Find a Worker →</Link>
-              <Link to="/register?role=worker" className="btn btn-accent btn-lg">Find Work</Link>
+              <Link to="/register" className="btn btn-primary btn-lg">{t('landing.findWorker')}</Link>
+              <Link to="/register?role=worker" className="btn btn-accent btn-lg">{t('landing.findWork')}</Link>
             </div>
             <div className="hero-stats">
               <div className="hero-stat-item">
-                <div className="num">1,200+</div>
-                <div className="label">Skilled Workers</div>
+                <div className="num">100+</div>
+                <div className="label">{t('landing.skilledWorkers')}</div>
               </div>
               <div className="hero-stat-item">
-                <div className="num">8,400+</div>
-                <div className="label">Happy Customers</div>
+                <div className="num">50+</div>
+                <div className="label">{t('landing.happyCustomers')}</div>
               </div>
               <div className="hero-stat-item">
-                <div className="num">15,000+</div>
-                <div className="label">Services Done</div>
+                <div className="num">200+</div>
+                <div className="label">{t('landing.servicesDone')}</div>
               </div>
             </div>
           </div>
@@ -236,8 +238,8 @@ export default function Landing() {
       <section className="section" style={{ background: 'var(--bg-secondary)' }}>
         <div className="container">
           <div className="section-header">
-            <h2>Why CoopGig?</h2>
-            <p>Not just another gig platform. We're building a fair, cooperative economy for India's service workers.</p>
+            <h2>{t('landing.why')}</h2>
+            <p>{t('landing.whyText')}</p>
           </div>
           <div className="features-grid">
             {features.map((f, i) => (
@@ -255,8 +257,8 @@ export default function Landing() {
       <section className="section">
         <div className="container">
           <div className="section-header">
-            <h2>How It Works</h2>
-            <p>Three simple steps to get reliable, cooperative-backed services at your doorstep.</p>
+            <h2>{t('landing.how')}</h2>
+            <p>{t('landing.howText')}</p>
           </div>
           <div className="grid-3">
             {[
@@ -295,7 +297,7 @@ export default function Landing() {
             </div>
             <div className="ai-chat-preview">
               <div className="ai-chat-header">
-                <span>🤖</span> CoopGig AI Assistant
+                <span>🤖</span> ActiveSetu AI Assistant
               </div>
               <div className="ai-chat-msg">
                 <div className="ai-chat-avatar user-av">👤</div>
@@ -329,8 +331,8 @@ export default function Landing() {
             <h2>Ready to Make a Difference?</h2>
             <p>Join the cooperative movement. Better pay, better services, better future.</p>
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', position: 'relative' }}>
-              <Link to="/register" className="btn btn-accent btn-lg">Create Account</Link>
-              <Link to="/login" className="btn btn-lg" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none' }}>Sign In</Link>
+              <Link to="/register" className="btn btn-accent btn-lg">{t('landing.createAccount')}</Link>
+              <Link to="/login" className="btn btn-lg" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none' }}>{t('landing.signIn')}</Link>
             </div>
           </div>
         </div>
@@ -340,12 +342,15 @@ export default function Landing() {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-brand">
-            <div className="logo">🤝 CoopGig</div>
-            <p>India's cooperative-powered gig services platform. Connecting skilled workers with customers through worker-owned cooperatives.</p>
+            <div className="logo footer-logo"><img src={activeSetuMark} alt="ActiveSetu" /> <span>Active<span>Setu</span></span></div>
+            <p className="brand-description">Find trusted local service professionals and opportunities in one place.</p>
           </div>
           <div className="footer-col">
             <h4>Services</h4>
-            <a href="#">Plumbing</a><a href="#">Electrical</a><a href="#">AC Repair</a><a href="#">Cleaning</a>
+            <Link to="/workers?skill=Plumbing">Plumbing</Link>
+            <Link to="/workers?skill=Electrical">Electrical</Link>
+            <Link to="/workers?skill=AC%20Repair">AC Repair</Link>
+            <Link to="/workers?skill=Cleaning">Cleaning</Link>
           </div>
           <div className="footer-col">
             <h4>Company</h4>
@@ -353,10 +358,13 @@ export default function Landing() {
           </div>
           <div className="footer-col">
             <h4>For Workers</h4>
-            <a href="#">Join Cooperative</a><a href="#">Training</a><a href="#">Welfare Benefits</a><a href="#">Partner</a>
+            <Link to="/register?role=worker">Join Cooperative</Link>
+            <Link to="/for-workers/training">Training</Link>
+            <Link to="/for-workers/welfare">Welfare Benefits</Link>
+            <Link to="/for-workers/partner">Partner</Link>
           </div>
         </div>
-        <div className="footer-bottom">© 2025 CoopGig. Built for SIH — Empowering India's gig workers.</div>
+        <div className="footer-bottom brand-footer">© 2026 ActiveSetu. Connecting People. Empowering Work.</div>
       </footer>
     </div>
   );
