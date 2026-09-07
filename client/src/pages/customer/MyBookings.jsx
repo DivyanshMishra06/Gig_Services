@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
-import { getBookings } from '../../services/api';
+import { getBookings, getBookingById, createPaymentOrder } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { openRazorpayCheckout } from '../../services/razorpay';
 
 export default function MyBookings() {
+  const { user } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [payingId, setPayingId] = useState('');
+  const [paymentMessage, setPaymentMessage] = useState('');
 
   useEffect(() => {
     loadBookings();
@@ -16,6 +21,40 @@ export default function MyBookings() {
       setBookings(data || []);
     } catch (e) { console.error(e); }
     setLoading(false);
+  };
+
+  const refreshPaymentStatus = async (bookingId) => {
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      await new Promise(resolve => window.setTimeout(resolve, 2000));
+      const { data } = await getBookingById(bookingId);
+      if (data.paymentStatus === 'paid') {
+        setPaymentMessage('Payment verified. Your booking is now confirmed.');
+        await loadBookings();
+        return;
+      }
+      if (data.paymentStatus === 'failed') {
+        setPaymentMessage('Payment was not completed. You can try again.');
+        await loadBookings();
+        return;
+      }
+    }
+    setPaymentMessage('Payment is being verified. Refresh this page shortly for the latest status.');
+    await loadBookings();
+  };
+
+  const payForBooking = async (booking) => {
+    setPayingId(booking._id);
+    setPaymentMessage('');
+    try {
+      const { data: order } = await createPaymentOrder(booking._id);
+      const checkout = await openRazorpayCheckout({ order, booking, customer: user });
+      if (checkout.submitted) await refreshPaymentStatus(booking._id);
+      else setPaymentMessage('Payment was not completed. You can try again when ready.');
+    } catch (error) {
+      setPaymentMessage(error.response?.data?.message || error.message || 'Could not start payment.');
+    } finally {
+      setPayingId('');
+    }
   };
 
   const filtered = filter === 'all' ? bookings : bookings.filter(b => b.status === filter);
@@ -37,6 +76,7 @@ export default function MyBookings() {
         <h1>My Bookings</h1>
         <p>Track and manage your service bookings</p>
       </div>
+      {paymentMessage && <p role="status" className="profile-message profile-success">{paymentMessage}</p>}
 
       <div className="tabs">
         {[
@@ -99,6 +139,13 @@ export default function MyBookings() {
                   <span style={{ fontWeight: 700, color: 'var(--accent)', fontSize: '1.1rem' }}>
                     ₹{b.actualPrice || b.estimatedPrice}
                   </span>
+                </div>
+              )}
+
+              {b.status === 'awaiting_payment' && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginTop: '14px', paddingTop: '14px', borderTop: '1px solid var(--border)' }}>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Awaiting secure payment verification</span>
+                  <button className="btn btn-primary btn-sm" disabled={payingId === b._id} onClick={() => payForBooking(b)}>{payingId === b._id ? 'Opening payment...' : 'Pay securely'}</button>
                 </div>
               )}
 

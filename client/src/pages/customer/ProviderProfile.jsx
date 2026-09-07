@@ -33,7 +33,9 @@ export default function ProviderProfile() {
         <div className="provider-actions">
           <Link to={`/chat/${provider._id}`} state={{ provider }} className="btn btn-secondary">💬 Chat</Link>
           <a href={`tel:${phone}`} className="btn btn-secondary">📞 Call</a>
-          <Link to={`/book/${provider._id}`} className="btn btn-primary">Book now</Link>
+          {provider.verificationStatus === 'verified' && provider.availability !== 'offline'
+            ? <Link to={`/book/${provider._id}`} className="btn btn-primary">Book now</Link>
+            : <span className="btn btn-secondary" style={{ opacity: 0.6, cursor: 'not-allowed' }}>{provider.availability === 'offline' ? 'Worker offline' : 'Not yet verified'}</span>}
         </div>
         <p className="provider-contact-note">Contact number: <a href={`tel:${phone}`}>{phone}</a></p>
       </section>

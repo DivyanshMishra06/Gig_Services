@@ -9,8 +9,16 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['customer', 'worker', 'admin'], default: 'customer' },
   avatar: { type: String, default: '' },
   location: {
-    type: { type: String, default: 'Point' },
-    coordinates: [Number],
+    type: { type: String, enum: ['Point'] },
+    coordinates: {
+      type: [Number],
+      validate: {
+        validator: value => !value || (value.length === 2 &&
+          Number.isFinite(value[0]) && Number.isFinite(value[1]) &&
+          value[0] >= -180 && value[0] <= 180 && value[1] >= -90 && value[1] <= 90),
+        message: 'Location must be a GeoJSON Point in [longitude, latitude] order'
+      }
+    },
     address: String,
     city: String,
     state: String,

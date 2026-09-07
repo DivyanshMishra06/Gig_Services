@@ -42,8 +42,10 @@ export const getServiceById = (id) => API.get(`/services/${id}`);
 
 // Workers
 export const getWorkers = (params) => API.get('/workers', { params });
+export const getNearbyWorkers = (params) => API.get('/workers/nearby', { params });
 export const getWorkerById = (id, params) => API.get(`/workers/${id}`, { params });
 export const updateWorker = (data) => API.put('/workers/update', data);
+export const geocodeLocation = (query) => API.get('/locations/geocode', { params: { query } });
 export const updateAvailability = (data) => API.put('/workers/availability', data);
 export const getWorkerEarnings = () => API.get('/workers/earnings');
 export const getWorkerWelfare = () => API.get('/workers/welfare');
@@ -55,6 +57,10 @@ export const getBookingById = (id) => API.get(`/bookings/${id}`);
 export const updateBookingStatus = (id, data) => API.put(`/bookings/${id}/status`, data);
 export const getInvoice = (bookingId) => API.get(`/bookings/${bookingId}/invoice`);
 export const payInvoice = (id, data) => API.put(`/bookings/invoice/${id}/pay`, data);
+
+// Payments: Checkout only receives a server-created Razorpay Order. Payment
+// confirmation always comes from the backend's signed webhook.
+export const createPaymentOrder = (bookingId) => API.post('/payments/create-order', { bookingId });
 
 // Reviews
 export const createReview = (data) => API.post('/reviews', data);

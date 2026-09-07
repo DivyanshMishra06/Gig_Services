@@ -36,13 +36,23 @@ const workerSchema = new mongoose.Schema({
     saturday: { start: String, end: String, active: Boolean },
     sunday: { start: String, end: String, active: Boolean }
   },
+  // This is the worker's service base, not live device tracking.
+  // It remains optional so existing worker accounts continue to work.
   location: {
-    type: { type: String, default: 'Point' },
-    coordinates: [Number],
+    type: { type: String, enum: ['Point'] },
+    coordinates: {
+      type: [Number],
+      validate: {
+        validator: value => !value || (value.length === 2 &&
+          Number.isFinite(value[0]) && Number.isFinite(value[1]) &&
+          value[0] >= -180 && value[0] <= 180 && value[1] >= -90 && value[1] <= 90),
+        message: 'Location must be a GeoJSON Point in [longitude, latitude] order'
+      }
+    },
     address: String,
     city: String
   },
-  serviceArea: { type: Number, default: 10 },
+  serviceArea: { type: Number, default: 10, min: 0.1, max: 100 },
   startingPrice: { type: Number, default: 199 },
   languages: [{ type: String }],
   emergencyContact: { name: String, phone: String, relation: String },
@@ -66,6 +76,7 @@ const workerSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-workerSchema.index({ 'location.coordinates': '2dsphere' });
+// Index the GeoJSON object itself; indexing location.coordinates does not support $near.
+workerSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('Worker', workerSchema);

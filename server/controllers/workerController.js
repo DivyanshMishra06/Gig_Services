@@ -1,6 +1,31 @@
 const Worker = require('../models/Worker');
 const User = require('../models/User');
+const Service = require('../models/Service');
 const { calculateMatchingScore, haversineDistance } = require('../services/matchingService');
+const { validateCoordinates } = require('../services/locationService');
+
+const MAX_RADIUS_KM = 100;
+
+const workerSkillQuery = skill => !skill ? {} : ({
+  $or: [
+    { skills: { $regex: skill, $options: 'i' } },
+    { primarySkill: { $regex: skill, $options: 'i' } }
+  ]
+});
+
+const publicWorker = worker => {
+  const result = worker.toObject ? worker.toObject() : worker;
+  result.userName = result.userName || result.userId?.name;
+  result.userAvatar = result.userAvatar || result.userId?.avatar;
+  result.userEmail = result.userEmail || result.userId?.email;
+  // Aggregation uses this temporary lookup only to derive public display data.
+  // Do not return the linked user document (email/phone or other account data).
+  delete result.user;
+  delete result.distanceMeters;
+  // A customer needs an approximate service area, not a worker's exact base coordinates.
+  if (result.location) result.location = { city: result.location.city || '' };
+  return result;
+};
 
 exports.getWorkers = async (req, res) => {
   try {
@@ -25,9 +50,6 @@ exports.getWorkers = async (req, res) => {
     // Calculate matching scores and distances
     workers = workers.map(w => {
       const workerObj = w.toObject();
-      workerObj.userName = workerObj.userId?.name;
-      workerObj.userAvatar = workerObj.userId?.avatar;
-      workerObj.userEmail = workerObj.userId?.email;
 
       if (lat && lng) {
         calculateMatchingScore(workerObj, {
@@ -36,7 +58,7 @@ exports.getWorkers = async (req, res) => {
           lng: parseFloat(lng)
         });
       }
-      return workerObj;
+      return publicWorker(workerObj);
     });
 
     // Filter by max distance
@@ -59,9 +81,87 @@ exports.getWorkers = async (req, res) => {
   }
 };
 
+exports.getNearbyWorkers = async (req, res) => {
+  const coordinates = validateCoordinates(req.query.longitude, req.query.latitude);
+  const radius = Number(req.query.radius ?? 10);
+  if (!coordinates) return res.status(400).json({ message: 'Valid longitude and latitude are required.' });
+  if (!Number.isFinite(radius) || radius <= 0 || radius > MAX_RADIUS_KM) {
+    return res.status(400).json({ message: `Radius must be between 0 and ${MAX_RADIUS_KM} km.` });
+  }
+
+  try {
+    let skills = req.query.skill ? [String(req.query.skill)] : [];
+    if (req.query.category) {
+      const categoryServices = await Service.find({
+        isActive: true,
+        category: { $regex: String(req.query.category), $options: 'i' }
+      }).select('name');
+      skills = skills.concat(categoryServices.map(service => service.name));
+    }
+    const uniqueSkills = [...new Set(skills.filter(Boolean))];
+    const skillFilter = uniqueSkills.length ? {
+      $or: uniqueSkills.flatMap(skill => [
+        { skills: { $regex: skill, $options: 'i' } },
+        { primarySkill: { $regex: skill, $options: 'i' } }
+      ])
+    } : {};
+
+    const workers = await Worker.aggregate([
+      {
+        $geoNear: {
+          near: { type: 'Point', coordinates: [coordinates.longitude, coordinates.latitude] },
+          key: 'location',
+          distanceField: 'distanceMeters',
+          maxDistance: radius * 1000,
+          spherical: true,
+          query: { availability: { $ne: 'offline' }, verificationStatus: 'verified', ...skillFilter }
+        }
+      },
+      // A worker whose own service area does not reach the customer is not a match.
+      { $match: { $expr: { $lte: ['$distanceMeters', { $multiply: [{ $ifNull: ['$serviceArea', 10] }, 1000] }] } } },
+      { $sort: { distanceMeters: 1, rating: -1 } },
+      { $limit: 100 },
+      { $lookup: { from: 'users', localField: 'userId', foreignField: '_id', as: 'user' } },
+      { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+      // Whitelist only fields needed by the customer search card. In particular,
+      // do not expose a worker's base coordinates, contact, ID, banking, or welfare data.
+      {
+        $project: {
+          skills: 1,
+          primarySkill: 1,
+          cooperativeName: 1,
+          experience: 1,
+          rating: 1,
+          totalRatings: 1,
+          completedJobs: 1,
+          verificationStatus: 1,
+          availability: 1,
+          'location.city': 1,
+          serviceArea: 1,
+          startingPrice: 1,
+          languages: 1,
+          bio: 1,
+          distanceMeters: 1,
+          'user.name': 1,
+          'user.avatar': 1
+        }
+      }
+    ]);
+
+    res.json(workers.map(worker => publicWorker({
+      ...worker,
+      userName: worker.user?.name,
+      userAvatar: worker.user?.avatar,
+      distance: Math.round((worker.distanceMeters / 1000) * 10) / 10
+    })));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.getWorkerById = async (req, res) => {
   try {
-    const worker = await Worker.findById(req.params.id).populate('userId', 'name email phone avatar location');
+    const worker = await Worker.findById(req.params.id).populate('userId', 'name email phone avatar');
     if (!worker) return res.status(404).json({ message: 'Worker not found' });
 
     const workerObj = worker.toObject();
@@ -80,7 +180,7 @@ exports.getWorkerById = async (req, res) => {
       workerObj._distance = Math.round(dist * 10) / 10;
     }
 
-    res.json(workerObj);
+    res.json(publicWorker(workerObj));
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -95,6 +195,12 @@ exports.updateWorker = async (req, res) => {
       'schedule', 'serviceArea', 'startingPrice', 'languages', 'bio', 'location',
       'emergencyContact', 'bankInfo'];
 
+    if (req.body.location !== undefined && !isValidLocation(req.body.location)) {
+      return res.status(400).json({ message: 'Location must include valid longitude and latitude coordinates.' });
+    }
+    if (req.body.serviceArea !== undefined && (!Number.isFinite(Number(req.body.serviceArea)) || Number(req.body.serviceArea) <= 0 || Number(req.body.serviceArea) > MAX_RADIUS_KM)) {
+      return res.status(400).json({ message: `Service area must be between 0 and ${MAX_RADIUS_KM} km.` });
+    }
     fields.forEach(f => {
       if (req.body[f] !== undefined) worker[f] = req.body[f];
     });
@@ -105,6 +211,9 @@ exports.updateWorker = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+const isValidLocation = location => location && location.type === 'Point' &&
+  Array.isArray(location.coordinates) && Boolean(validateCoordinates(location.coordinates[0], location.coordinates[1]));
 
 exports.updateAvailability = async (req, res) => {
   try {

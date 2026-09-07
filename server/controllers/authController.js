@@ -1,6 +1,10 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Worker = require('../models/Worker');
+const { validateCoordinates } = require('../services/locationService');
+
+const isValidLocation = location => location && location.type === 'Point' &&
+  Array.isArray(location.coordinates) && Boolean(validateCoordinates(location.coordinates[0], location.coordinates[1]));
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -12,6 +16,9 @@ exports.register = async (req, res) => {
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists' });
+    }
+    if (location !== undefined && !isValidLocation(location)) {
+      return res.status(400).json({ message: 'Location must include valid longitude and latitude coordinates.' });
     }
     const user = await User.create({ name, email, password, phone, role: role || 'customer', location });
 
@@ -91,7 +98,10 @@ exports.updateProfile = async (req, res) => {
       user.name = req.body.name || user.name;
       user.phone = req.body.phone || user.phone;
       user.avatar = req.body.avatar || user.avatar;
-      user.location = req.body.location || user.location;
+      if (req.body.location !== undefined) {
+        if (!isValidLocation(req.body.location)) return res.status(400).json({ message: 'Location must include valid longitude and latitude coordinates.' });
+        user.location = req.body.location;
+      }
       user.language = req.body.language || user.language;
       user.savedAddresses = req.body.savedAddresses || user.savedAddresses;
       const updated = await user.save();

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getMe, updateProfile } from '../services/api';
+import { getMe, updateProfile, updateWorker } from '../services/api';
+import LocationPicker from '../components/LocationPicker';
 
 const formatLocation = (location) => {
   if (!location) return 'Not provided';
@@ -24,7 +25,9 @@ export default function Profile() {
     address: data?.location?.address || '',
     city: data?.location?.city || '',
     state: data?.location?.state || '',
-    pincode: data?.location?.pincode || ''
+    pincode: data?.location?.pincode || '',
+    location: data?.location?.coordinates?.length === 2 ? data.location : null,
+    serviceArea: data?.workerProfile?.serviceArea || 10
   });
 
   useEffect(() => {
@@ -59,13 +62,15 @@ export default function Profile() {
     setError('');
     setMessage('');
     try {
-      const { address, city, state, pincode, ...account } = form;
-      const { data } = await updateProfile({
-        ...account,
-        location: { ...profile?.location, address, city, state, pincode }
-      });
-      setProfile(data);
-      updateUser(data);
+      const { address, city, state, pincode, location: selectedLocation, serviceArea, ...account } = form;
+      const location = selectedLocation?.coordinates?.length === 2
+        ? { ...selectedLocation, address, city, state, pincode }
+        : undefined;
+      const { data } = await updateProfile({ ...account, ...(location ? { location } : {}) });
+      if (profile?.role === 'worker') await updateWorker({ ...(location ? { location } : {}), serviceArea: Number(serviceArea) });
+      const updatedProfile = { ...data, workerProfile: { ...profile?.workerProfile, serviceArea: Number(serviceArea), ...(location ? { location } : {}) } };
+      setProfile(updatedProfile);
+      updateUser(updatedProfile);
       setIsEditing(false);
       setMessage('Profile updated successfully.');
     } catch (saveError) {
@@ -114,10 +119,17 @@ export default function Profile() {
               <div className="form-group"><label htmlFor="profile-address">Address</label><input id="profile-address" name="address" value={form.address} onChange={handleChange} /></div>
               <div className="form-group"><label htmlFor="profile-city">City</label><input id="profile-city" name="city" value={form.city} onChange={handleChange} /></div>
             </div>
+            <LocationPicker value={form.location} onChange={location => setForm(current => ({
+              ...current,
+              location,
+              address: location.address || current.address,
+              city: location.city || current.city
+            }))} actionLabel={profile?.role === 'worker' ? 'Use my current service location' : 'Use my current location'} />
             <div className="form-row">
               <div className="form-group"><label htmlFor="profile-state">State</label><input id="profile-state" name="state" value={form.state} onChange={handleChange} /></div>
               <div className="form-group"><label htmlFor="profile-pincode">PIN code</label><input id="profile-pincode" name="pincode" value={form.pincode} onChange={handleChange} /></div>
             </div>
+            {profile?.role === 'worker' && <div className="form-group"><label htmlFor="profile-service-area">Service area (km)</label><input id="profile-service-area" name="serviceArea" type="number" min="0.1" max="100" step="0.1" value={form.serviceArea} onChange={handleChange} required /><p className="profile-readonly">Customers outside this radius will not see you in nearby search.</p></div>}
             <div className="form-group"><label htmlFor="profile-language">Preferred language</label><select id="profile-language" name="language" value={form.language} onChange={handleChange}><option value="en">English</option><option value="hi">Hindi</option></select></div>
             <p className="profile-readonly">Email address and account type cannot be changed here.</p>
             <div className="profile-form-actions">
