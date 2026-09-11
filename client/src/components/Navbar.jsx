@@ -1,8 +1,9 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Moon, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import activeSetuMark from '../assets/activesetu-navbar-white.png';
+import activeSetuMark from '../assets/ActiveSetuNG.png';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -10,6 +11,30 @@ export default function Navbar() {
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem('activesetu_theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('activesetu_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark');
+
+  const themeToggle = (className = '') => {
+    const isDark = theme === 'dark';
+    return (
+      <button
+        type="button"
+        className={`theme-toggle ${className}`}
+        onClick={toggleTheme}
+        aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+        title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      >
+        {isDark ? <Sun size={17} aria-hidden="true" /> : <Moon size={17} aria-hidden="true" />}
+        <span>{isDark ? 'Light' : 'Dark'}</span>
+      </button>
+    );
+  };
 
   const languageSelector = (className = '') => (
     <select
@@ -68,6 +93,7 @@ export default function Navbar() {
         <Link key={link.path} to={link.path} className={location.pathname === link.path ? 'active' : ''} onClick={closeMobileMenu}>{link.label}</Link>
       ))}
       {languageSelector('mobile-language-select')}
+      {themeToggle('mobile-theme-toggle')}
       {user ? <><Link to="/profile" onClick={closeMobileMenu}>My Profile</Link><button type="button" onClick={handleLogout}>{t('nav.logout')}</button></> : <><Link to="/login" onClick={closeMobileMenu}>{t('nav.login')}</Link><Link to="/register" onClick={closeMobileMenu}>{t('nav.getStarted')}</Link></>}
     </div>
   );
@@ -82,6 +108,7 @@ export default function Navbar() {
           </Link>
           <div className="navbar-links navbar-links-desktop">
             {languageSelector('desktop-language-select')}
+            {themeToggle()}
             <Link to="/login" className="btn btn-ghost">{t('nav.login')}</Link>
             <Link to="/register" className="btn btn-primary btn-sm">{t('nav.getStarted')}</Link>
           </div>
@@ -110,7 +137,10 @@ export default function Navbar() {
             </Link>
           ))}
         </div>
-        {languageSelector('desktop-language-select')}
+        <div className="navbar-preferences">
+          {languageSelector('desktop-language-select')}
+          {themeToggle()}
+        </div>
         {user && (
           <div className="user-menu">
             <Link to="/profile" className="user-avatar" aria-label="View your profile" title="View profile">

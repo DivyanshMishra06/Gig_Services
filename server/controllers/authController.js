@@ -1,6 +1,10 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const Worker = require('../models/Worker');
+
+const googleClient = new OAuth2Client();
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -68,6 +72,56 @@ exports.login = async (req, res) => {
     }
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+exports.googleLogin = async (req, res) => {
+  try {
+    const { credential } = req.body;
+    if (!credential) {
+      return res.status(400).json({ message: 'Google credential is required' });
+    }
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(500).json({ message: 'Google sign-in is not configured on the server' });
+    }
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    const payload = ticket.getPayload();
+    if (!payload?.email || !payload.email_verified) {
+      return res.status(401).json({ message: 'Google account email could not be verified' });
+    }
+
+    let user = await User.findOne({ email: payload.email });
+    if (!user) {
+      user = await User.create({
+        name: payload.name || payload.email.split('@')[0],
+        email: payload.email,
+        password: crypto.randomBytes(32).toString('hex'),
+        avatar: payload.picture || ''
+      });
+    }
+
+    let workerProfile = null;
+    if (user.role === 'worker') {
+      workerProfile = await Worker.findOne({ userId: user._id });
+    }
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      phone: user.phone,
+      avatar: user.avatar,
+      location: user.location,
+      language: user.language,
+      workerProfile,
+      token: generateToken(user._id)
+    });
+  } catch (error) {
+    res.status(401).json({ message: 'Google credential is invalid or expired' });
   }
 };
 

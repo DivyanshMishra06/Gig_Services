@@ -52,7 +52,7 @@ export default function WorkerSearch() {
   return (
     <div style={{ padding: '32px 24px', maxWidth: '1200px', margin: '0 auto' }}>
       <div className="page-header">
-        <h1>{t('search.title', { skill: skill ? ` — ${skill}` : '', city: city ? t('search.inCity', { city }) : '' })}</h1>
+        <h1>{t('search.title', { skill: skill ? ` — ${skill}` : '', city: location ? t('search.inCity', { city: location }) : '' })}</h1>
         <p>{t('search.subtitle')}</p>
       </div>
 
