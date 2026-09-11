@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getBookings, getServices } from '../../services/api';
 
@@ -91,7 +92,10 @@ export default function CustomerDashboard() {
       <div style={{ marginBottom: '40px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <h2 style={{ fontSize: '1.2rem', fontWeight: 700 }}>Active Bookings</h2>
-          <Link to="/bookings" className="btn btn-ghost btn-sm">View All →</Link>
+          <Link to="/bookings" className="booking-view-all">
+            <span>View all</span>
+            <ArrowRight size={16} strokeWidth={2.5} aria-hidden="true" />
+          </Link>
         </div>
         {activeBookings.length === 0 ? (
           <div className="empty-state">
