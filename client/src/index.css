@@ -55,6 +55,37 @@
   --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* Theme values are kept as design tokens so every page can inherit the selected mode. */
+:root[data-theme="dark"] {
+  --primary: #45C37A;
+  --primary-light: #153D29;
+  --primary-dark: #2BAA61;
+  --primary-glow: rgba(69, 195, 122, 0.2);
+  --accent: #FF9A5C;
+  --accent-light: #472C20;
+  --accent-dark: #F38342;
+  --success: #45C37A;
+  --warning: #F3BF42;
+  --danger: #F27A5F;
+  --info: #69A7FF;
+  --bg-primary: #101713;
+  --bg-secondary: #17211B;
+  --bg-card: #1C2821;
+  --bg-card-hover: #24342A;
+  --bg-input: #152019;
+  --surface: rgba(69, 195, 122, 0.1);
+  --surface-hover: rgba(69, 195, 122, 0.16);
+  --border: #304238;
+  --border-active: rgba(69, 195, 122, 0.6);
+  --text-primary: #F0F7F2;
+  --text-secondary: #B3C2B9;
+  --text-muted: #85968B;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.28);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 4px 20px rgba(69, 195, 122, 0.15);
+}
+
 /* ===== Reset ===== */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -68,6 +99,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+  transition: background-color var(--transition), color var(--transition);
 }
 
 html[lang="hi"] body,
@@ -187,6 +219,41 @@ input:focus, select:focus, textarea:focus {
 .btn-lg { padding: 16px 32px; font-size: 1.1rem; }
 .btn-icon { padding: 10px; border-radius: var(--radius-md); }
 
+/* Customer dashboard */
+.booking-view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px 9px 16px;
+  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 8%, var(--bg-card));
+  color: var(--primary);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--primary) 10%, transparent);
+  transition: transform var(--transition), background var(--transition), color var(--transition), box-shadow var(--transition);
+}
+
+.booking-view-all svg { transition: transform var(--transition); }
+
+.booking-view-all:hover {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 7px 16px color-mix(in srgb, var(--primary) 28%, transparent);
+  transform: translateY(-2px);
+}
+
+.booking-view-all:hover svg { transform: translateX(3px); }
+
+.booking-view-all:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--primary) 30%, transparent);
+  outline-offset: 3px;
+}
+
 /* Cards */
 .card {
   background: var(--bg-card);
@@ -202,7 +269,7 @@ input:focus, select:focus, textarea:focus {
 }
 
 .card-glass {
-  background: rgba(255, 255, 255, 0.7);
+  background: color-mix(in srgb, var(--bg-card) 78%, transparent);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -257,7 +324,7 @@ input:focus, select:focus, textarea:focus {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.92);
+  background: color-mix(in srgb, var(--bg-card) 92%, transparent);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
   padding: 0 24px;
@@ -289,10 +356,10 @@ input:focus, select:focus, textarea:focus {
   background-clip: text;
 }
 
-.brand-mark { width: 54px; height: 42px; object-fit: contain; border-radius: 6px; }
+.brand-mark { width: 72px; height: 56px; object-fit: contain; border-radius: 6px; }
 .navbar-brand .brand-name { color: #ff7600; letter-spacing: -.05em; }
 .navbar-brand .brand-name span, .footer-logo > span > span { color: var(--primary); }
-.footer-logo { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; background: white; border: 1px solid var(--border); border-radius: var(--radius-md); }
+.footer-logo { display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); }
 .footer-logo img { width: 54px; height: 42px; object-fit: contain; border-radius: 6px; }
 .footer-logo > span { color: #ff7600; }
 
@@ -351,6 +418,34 @@ input:focus, select:focus, textarea:focus {
   gap: 12px;
 }
 
+.navbar-preferences {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 600;
+}
+
+.theme-toggle:hover, .theme-toggle:focus-visible {
+  background: var(--surface-hover);
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
 .language-select {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -380,7 +475,7 @@ input:focus, select:focus, textarea:focus {
 @media (max-width: 1100px) {
   .navbar { padding: 0 16px; }
   .navbar-inner { height: 60px; }
-  .navbar-links-desktop, .desktop-language-select, .navbar-inner > .user-menu { display: none; }
+  .navbar-links-desktop, .desktop-language-select, .navbar-preferences, .navbar-inner > .user-menu { display: none; }
   .navbar-brand { gap: 6px; font-size: 1.2rem; }
   .brand-mark { width: 44px; height: 36px; }
   .mobile-menu-toggle { display: grid; place-items: center; width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--surface); color: var(--text-primary); font-size: 1.35rem; }
@@ -389,6 +484,7 @@ input:focus, select:focus, textarea:focus {
   .mobile-menu a, .mobile-menu button { display: block; width: 100%; padding: 12px 14px; border-radius: var(--radius-md); background: transparent; color: var(--text-secondary); font: inherit; font-weight: 600; text-align: left; text-decoration: none; }
   .mobile-menu a:hover, .mobile-menu a.active, .mobile-menu button:hover { background: var(--primary-light); color: var(--primary); }
   .mobile-language-select { max-width: 100%; margin: 6px 0; }
+  .mobile-theme-toggle { width: 100%; justify-content: flex-start; padding: 12px 14px; margin: 2px 0; }
 }
 
 .user-avatar {

@@ -3,8 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getServices } from '../services/api';
 import { useTranslation } from 'react-i18next';
-import activeSetuMark from '../assets/activesetu-navbar-white.png';
-
+import activeSetuMark from '../assets/ActiveSetuNG.png';
 const services = [
   { icon: '🔧', name: 'Plumbing', nameKey: 'plumbing', searchLabel: 'Plumbing', related: ['Plumber'] },
   { icon: '⚡', name: 'Electrical', nameKey: 'electrical', searchLabel: 'Electrical' },

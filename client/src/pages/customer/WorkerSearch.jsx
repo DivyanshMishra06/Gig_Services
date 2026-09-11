@@ -13,22 +13,29 @@ export default function WorkerSearch() {
   const [skill, setSkill] = useState(searchParams.get('skill') || '');
   const [sort, setSort] = useState('');
   const [location, setLocation] = useState(null);
-  const city = searchParams.get('city') || '';
+  const [city, setCity] = useState(searchParams.get('city') || '');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minExperience, setMinExperience] = useState('');
 
   useEffect(() => {
     setSkill(searchParams.get('skill') || '');
+    setCity(searchParams.get('city') || '');
   }, [searchParams]);
 
   useEffect(() => {
     loadWorkers();
-  }, [skill, sort, city, location]);
+  }, [skill, sort, city, location, minPrice, maxPrice, minExperience]);
 
   const loadWorkers = async () => {
     setLoading(true);
     try {
       const params = {};
       if (skill) params.skill = skill;
-      if (city) params.city = city;
+      if (city.trim()) params.city = city.trim();
+      if (minPrice !== '') params.minPrice = minPrice;
+      if (maxPrice !== '') params.maxPrice = maxPrice;
+      if (minExperience !== '') params.minExperience = minExperience;
       if (sort) params.sort = sort;
       params.verified = 'true';
       const { data } = location?.coordinates?.length === 2
@@ -42,6 +49,15 @@ export default function WorkerSearch() {
       setWorkers(data || []);
     } catch (e) { console.error(e); }
     setLoading(false);
+  };
+
+  const clearFilters = () => {
+    setCity('');
+    setMinPrice('');
+    setMaxPrice('');
+    setMinExperience('');
+    setSort('');
+    setLocation(null);
   };
 
   return (
@@ -71,6 +87,16 @@ export default function WorkerSearch() {
       <div style={{ maxWidth: '620px', marginBottom: '20px' }}>
         <LocationPicker value={location} onChange={setLocation} />
         {location && <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: '6px' }}>{t('search.locationHint')}</p>}
+      </div>
+
+      <div className="filters-bar" style={{ marginTop: '12px', alignItems: 'center' }}>
+        <input className="filter-select" type="text" placeholder="Location / city" value={city} onChange={e => setCity(e.target.value)} aria-label="Filter by location" />
+        <input className="filter-select" type="number" min="0" placeholder="Min price (₹)" value={minPrice} onChange={e => setMinPrice(e.target.value)} aria-label="Minimum starting price" />
+        <input className="filter-select" type="number" min="0" placeholder="Max price (₹)" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} aria-label="Maximum starting price" />
+        <select className="filter-select" value={minExperience} onChange={e => setMinExperience(e.target.value)} aria-label="Minimum experience">
+          <option value="">Any experience</option><option value="3">3+ years</option><option value="5">5+ years</option><option value="10">10+ years</option>
+        </select>
+        <button type="button" className="btn btn-secondary btn-sm" onClick={clearFilters}>Clear filters</button>
       </div>
 
       {loading ? (
@@ -104,6 +130,7 @@ export default function WorkerSearch() {
                 <div className="worker-meta-item">⭐ <span className="value">{w.rating || '0'}</span> ({w.totalRatings || 0})</div>
                 <div className="worker-meta-item">🛠️ <span className="value">{w.experience || 0}</span> {t('search.years')}</div>
                 <div className="worker-meta-item">✅ <span className="value">{w.completedJobs || 0}</span> {t('search.jobs')}</div>
+                {w.location?.city && <div className="worker-meta-item">📍 <span className="value">{w.location.city}</span></div>}
                 {(w.distance ?? w._distance) !== undefined && <div className="worker-meta-item">📍 <span className="value">{w.distance ?? w._distance}</span> {t('search.kmAway')}</div>}
               </div>
 
