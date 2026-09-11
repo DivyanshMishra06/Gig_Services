@@ -36,36 +36,36 @@ export default function BookingPage() {
   };
 
   const waitForPaymentVerification = async (bookingId) => {
-    setPaymentMessage('Payment submitted. Waiting for secure verification...');
+    setPaymentMessage(t('booking.paymentSubmitted'));
     for (let attempt = 0; attempt < 6; attempt += 1) {
       await new Promise(resolve => window.setTimeout(resolve, 2000));
       const { data } = await getBookingById(bookingId);
       setBooking(data);
       if (data.paymentStatus === 'paid' && data.status === 'pending') {
         setSuccess(true);
-        setPaymentMessage('Payment verified. Your booking request has been sent to the worker.');
+        setPaymentMessage(t('booking.paymentVerifiedMessage'));
         window.setTimeout(() => navigate('/bookings'), 1800);
         return;
       }
       if (data.paymentStatus === 'failed') {
-        setPaymentError('Payment was not completed. You can try again.');
+        setPaymentError(t('booking.paymentNotCompleted'));
         return;
       }
     }
-    setPaymentMessage('Payment is being verified. Refresh My Bookings shortly for the latest status.');
+    setPaymentMessage(t('booking.paymentBeingVerified'));
   };
 
   const beginPayment = async (createdBooking) => {
     setSubmitting(true);
     setPaymentError('');
     try {
-      setPaymentMessage('Opening secure payment...');
+      setPaymentMessage(t('booking.openingSecurePayment'));
       const { data: order } = await createPaymentOrder(createdBooking._id);
       const checkout = await openRazorpayCheckout({ order, booking: createdBooking, customer: user });
       if (checkout.submitted) await waitForPaymentVerification(createdBooking._id);
-      else setPaymentMessage('Payment was not completed. You can try again when ready.');
+      else setPaymentMessage(t('booking.paymentNotCompletedReady'));
     } catch (e) {
-      setPaymentError(e.response?.data?.message || e.message || 'Could not start payment. Please try again.');
+      setPaymentError(e.response?.data?.message || e.message || t('booking.couldNotStartPayment'));
       setPaymentMessage('');
     } finally {
       setSubmitting(false);
@@ -108,13 +108,11 @@ export default function BookingPage() {
       <div className="loading-page" style={{ padding: '32px 24px' }}>
         <div className="card" style={{ maxWidth: '480px', width: '100%', textAlign: 'center' }}>
           <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🚫</div>
-          <h2 style={{ marginBottom: '8px' }}>Worker not available</h2>
+          <h2 style={{ marginBottom: '8px' }}>{t('booking.workerNotAvailable')}</h2>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-            {worker.availability === 'offline'
-              ? 'This worker is currently offline and not accepting bookings.'
-              : 'This worker has not been verified yet and cannot accept bookings.'}
+            {worker.availability === 'offline' ? t('booking.workerOffline') : t('booking.workerNotVerified')}
           </p>
-          <button className="btn btn-primary" onClick={() => navigate('/workers')}>Browse available workers</button>
+          <button className="btn btn-primary" onClick={() => navigate('/workers')}>{t('booking.browseAvailable')}</button>
         </div>
       </div>
     );
@@ -124,7 +122,7 @@ export default function BookingPage() {
     return (
       <div className="loading-page">
         <div style={{ fontSize: '4rem' }}>✅</div>
-        <h2>Payment verified</h2>
+        <h2>{t('booking.paymentVerified')}</h2>
         <p style={{ color: 'var(--text-secondary)' }}>{paymentMessage}</p>
       </div>
     );
@@ -134,14 +132,14 @@ export default function BookingPage() {
     return (
       <div className="loading-page" style={{ padding: '32px 24px' }}>
         <div className="card" style={{ maxWidth: '560px', width: '100%', textAlign: 'left' }}>
-          <h2 style={{ marginBottom: '10px' }}>Complete payment</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>Booking {booking.bookingId} is awaiting payment verification.</p>
+          <h2 style={{ marginBottom: '10px' }}>{t('booking.completePayment')}</h2>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>{t('booking.awaitingPayment', { id: booking.bookingId })}</p>
           <p style={{ fontWeight: 700, color: 'var(--accent)', marginBottom: '18px' }}>₹{booking.estimatedPrice}</p>
           {paymentMessage && <p role="status" style={{ color: 'var(--text-secondary)', marginBottom: '14px' }}>{paymentMessage}</p>}
           {paymentError && <p role="alert" style={{ color: 'var(--danger)', marginBottom: '14px' }}>{paymentError}</p>}
           <div style={{ display: 'flex', gap: '12px' }}>
-            <button className="btn btn-secondary" onClick={() => navigate('/bookings')}>My Bookings</button>
-            <button className="btn btn-primary" disabled={submitting} onClick={() => beginPayment(booking)} style={{ flex: 1 }}>{submitting ? 'Opening payment...' : 'Pay securely'}</button>
+            <button className="btn btn-secondary" onClick={() => navigate('/bookings')}>{t('booking.myBookings')}</button>
+            <button className="btn btn-primary" disabled={submitting} onClick={() => beginPayment(booking)} style={{ flex: 1 }}>{submitting ? t('booking.openingPayment') : t('booking.paySecurely')}</button>
           </div>
         </div>
       </div>
@@ -152,7 +150,7 @@ export default function BookingPage() {
     <div style={{ padding: '32px 24px', maxWidth: '800px', margin: '0 auto' }}>
       <div className="page-header">
         <h1>{t('booking.title')}</h1>
-        <p>{t('booking.subtitle')} Payment is confirmed only after secure verification.</p>
+        <p>{t('booking.subtitle')} {t('booking.paymentNote')}</p>
       </div>
 
       {/* Worker Info */}
@@ -172,8 +170,8 @@ export default function BookingPage() {
         </div>
         <div className="worker-meta">
           <div className="worker-meta-item">⭐ <span className="value">{worker.rating}</span></div>
-          <div className="worker-meta-item">🛠️ <span className="value">{worker.experience} yrs</span></div>
-          <div className="worker-meta-item">✅ <span className="value">{worker.completedJobs} jobs</span></div>
+          <div className="worker-meta-item">🛠️ <span className="value">{worker.experience} {t('search.years')}</span></div>
+          <div className="worker-meta-item">✅ <span className="value">{worker.completedJobs} {t('search.jobs')}</span></div>
         </div>
       </div>
 
@@ -237,7 +235,7 @@ export default function BookingPage() {
           <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
             <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)}>{t('common.cancel')}</button>
             <button type="submit" className="btn btn-primary" disabled={submitting} style={{ flex: 1 }}>
-              {submitting ? 'Preparing payment...' : `Continue to payment • ₹${worker.startingPrice}`}
+              {submitting ? t('booking.preparingPayment') : t('booking.continueToPayment', { price: worker.startingPrice })}
             </button>
           </div>
         </form>

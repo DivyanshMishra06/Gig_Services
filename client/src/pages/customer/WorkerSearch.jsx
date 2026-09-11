@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { getNearbyWorkers, getWorkers } from '../../services/api';
 import LocationPicker from '../../components/LocationPicker';
 import { useTranslation } from 'react-i18next';
 
 export default function WorkerSearch() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +46,7 @@ export default function WorkerSearch() {
 
   return (
     <div style={{ padding: '32px 24px', maxWidth: '1200px', margin: '0 auto' }}>
+      <button type="button" className="public-back-button" onClick={() => navigate(-1)}>← {t('nav.back')}</button>
       <div className="page-header">
         <h1>{t('search.title', { skill: skill ? ` — ${skill}` : '', city: city ? t('search.inCity', { city }) : '' })}</h1>
         <p>{t('search.subtitle')}</p>
@@ -68,7 +70,7 @@ export default function WorkerSearch() {
       </div>
       <div style={{ maxWidth: '620px', marginBottom: '20px' }}>
         <LocationPicker value={location} onChange={setLocation} />
-        {location && <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: '6px' }}>Showing workers who serve this location, within 20 km.</p>}
+        {location && <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: '6px' }}>{t('search.locationHint')}</p>}
       </div>
 
       {loading ? (
@@ -102,7 +104,7 @@ export default function WorkerSearch() {
                 <div className="worker-meta-item">⭐ <span className="value">{w.rating || '0'}</span> ({w.totalRatings || 0})</div>
                 <div className="worker-meta-item">🛠️ <span className="value">{w.experience || 0}</span> {t('search.years')}</div>
                 <div className="worker-meta-item">✅ <span className="value">{w.completedJobs || 0}</span> {t('search.jobs')}</div>
-                {(w.distance ?? w._distance) !== undefined && <div className="worker-meta-item">📍 <span className="value">{w.distance ?? w._distance}</span> km away</div>}
+                {(w.distance ?? w._distance) !== undefined && <div className="worker-meta-item">📍 <span className="value">{w.distance ?? w._distance}</span> {t('search.kmAway')}</div>}
               </div>
 
               {w.cooperativeName && (
@@ -123,7 +125,7 @@ export default function WorkerSearch() {
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}> {t('common.onwards')}</span>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <Link to={`/workers/${w._id}`} className="btn btn-secondary btn-sm">View profile</Link>
+                  <Link to={`/workers/${w._id}`} className="btn btn-secondary btn-sm">{t('search.viewProfile')}</Link>
                   <Link to={`/book/${w._id}`} className="btn btn-primary btn-sm">{t('common.bookNow')}</Link>
                 </div>
               </div>

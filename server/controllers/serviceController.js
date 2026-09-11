@@ -3,7 +3,7 @@ const Service = require('../models/Service');
 exports.getServices = async (req, res) => {
   try {
     const { search, category } = req.query;
-    let query = { isActive: true };
+    let query = { isActive: true, name: { $ne: 'Pest Control' } };
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -22,7 +22,7 @@ exports.getServices = async (req, res) => {
 
 exports.getServiceById = async (req, res) => {
   try {
-    const service = await Service.findById(req.params.id);
+    const service = await Service.findOne({ _id: req.params.id, name: { $ne: 'Pest Control' } });
     if (!service) return res.status(404).json({ message: 'Service not found' });
     res.json(service);
   } catch (error) {

@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { getAdminWorkers, verifyWorker } from '../../services/api';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminWorkers() {
+  const { t } = useTranslation();
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -21,7 +23,7 @@ export default function AdminWorkers() {
     try {
       await verifyWorker(id, { status });
       loadWorkers();
-    } catch (e) { alert('Failed to update verification'); }
+    } catch (e) { alert(t('adminWorkers.failedVerification')); }
   };
 
   const filtered = workers.filter(w => {
@@ -38,23 +40,23 @@ export default function AdminWorkers() {
   return (
     <div style={{ padding: '32px 24px', maxWidth: '1400px', margin: '0 auto' }}>
       <div className="page-header">
-        <h1>Worker Management</h1>
-        <p>Verify workers and manage cooperative memberships</p>
+        <h1>{t('adminWorkers.title')}</h1>
+        <p>{t('adminWorkers.subtitle')}</p>
       </div>
 
       {/* Stats */}
       <div className="grid-3" style={{ marginBottom: '24px' }}>
         <div className="stat-card">
           <div className="stat-value">{workers.length}</div>
-          <div className="stat-label">Total Workers</div>
+          <div className="stat-label">{t('adminWorkers.totalWorkers')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-value" style={{ color: 'var(--success)' }}>{workers.filter(w => w.verificationStatus === 'verified').length}</div>
-          <div className="stat-label">Verified</div>
+          <div className="stat-label">{t('adminWorkers.verified')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-value" style={{ color: 'var(--warning)' }}>{workers.filter(w => w.verificationStatus === 'pending').length}</div>
-          <div className="stat-label">Pending Verification</div>
+          <div className="stat-label">{t('adminWorkers.pendingVerification')}</div>
         </div>
       </div>
 
@@ -62,13 +64,13 @@ export default function AdminWorkers() {
       <div className="filters-bar">
         <div className="search-bar" style={{ flex: 1 }}>
           <span className="search-icon">🔍</span>
-          <input placeholder="Search workers..." value={search} onChange={e => setSearch(e.target.value)} style={{ paddingLeft: '44px' }} />
+          <input placeholder={t('adminWorkers.searchPlaceholder')} value={search} onChange={e => setSearch(e.target.value)} style={{ paddingLeft: '44px' }} />
         </div>
         <select className="filter-select" value={filter} onChange={e => setFilter(e.target.value)}>
-          <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="verified">Verified</option>
-          <option value="rejected">Rejected</option>
+          <option value="all">{t('adminWorkers.allStatus')}</option>
+          <option value="pending">{t('adminWorkers.pending')}</option>
+          <option value="verified">{t('adminWorkers.verifiedStatus')}</option>
+          <option value="rejected">{t('adminWorkers.rejected')}</option>
         </select>
       </div>
 
@@ -78,7 +80,7 @@ export default function AdminWorkers() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Worker</th><th>Skill</th><th>Cooperative</th><th>Experience</th><th>Rating</th><th>Jobs</th><th>Status</th><th>Actions</th>
+                <th>{t('adminWorkers.worker')}</th><th>{t('adminWorkers.skill')}</th><th>{t('adminWorkers.cooperative')}</th><th>{t('adminWorkers.experience')}</th><th>{t('adminWorkers.rating')}</th><th>{t('adminWorkers.jobs')}</th><th>{t('adminWorkers.status')}</th><th>{t('adminWorkers.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -97,7 +99,7 @@ export default function AdminWorkers() {
                   </td>
                   <td><span className="badge badge-primary">{w.primarySkill}</span></td>
                   <td style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{w.cooperativeName || '—'}</td>
-                  <td>{w.experience} yrs</td>
+                  <td>{w.experience} {t('adminWorkers.yrs')}</td>
                   <td>⭐ {w.rating || 0}</td>
                   <td>{w.completedJobs || 0}</td>
                   <td>
@@ -108,13 +110,13 @@ export default function AdminWorkers() {
                   <td>
                     {w.verificationStatus === 'pending' ? (
                       <div style={{ display: 'flex', gap: '6px' }}>
-                        <button className="btn btn-primary btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => handleVerify(w._id, 'verified')}>✓ Verify</button>
-                        <button className="btn btn-danger btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => handleVerify(w._id, 'rejected')}>✗ Reject</button>
+                        <button className="btn btn-primary btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => handleVerify(w._id, 'verified')}>✓ {t('adminWorkers.verify')}</button>
+                        <button className="btn btn-danger btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => handleVerify(w._id, 'rejected')}>✗ {t('adminWorkers.reject')}</button>
                       </div>
                     ) : w.verificationStatus === 'verified' ? (
-                      <span style={{ color: 'var(--success)', fontSize: '0.85rem' }}>✓ Active</span>
+                      <span style={{ color: 'var(--success)', fontSize: '0.85rem' }}>✓ {t('adminWorkers.activeLabel')}</span>
                     ) : (
-                      <button className="btn btn-secondary btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => handleVerify(w._id, 'verified')}>Re-verify</button>
+                      <button className="btn btn-secondary btn-sm" style={{ padding: '6px 12px', fontSize: '0.8rem' }} onClick={() => handleVerify(w._id, 'verified')}>{t('adminWorkers.reVerify')}</button>
                     )}
                   </td>
                 </tr>
@@ -123,7 +125,7 @@ export default function AdminWorkers() {
           </table>
         </div>
         {filtered.length === 0 && (
-          <div className="empty-state"><h3>No workers found</h3></div>
+          <div className="empty-state"><h3>{t('adminWorkers.noWorkers')}</h3></div>
         )}
       </div>
     </div>

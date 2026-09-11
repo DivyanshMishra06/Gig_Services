@@ -8,6 +8,7 @@ const serviceSchema = new mongoose.Schema({
   descriptionHi: { type: String },
   icon: { type: String },
   basePrice: { type: Number, default: 199 },
+  priceLabel: { type: String },
   popularity: { type: Number, default: 0 },
   isEmergency: { type: Boolean, default: false },
   isActive: { type: Boolean, default: true },

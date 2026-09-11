@@ -3,6 +3,22 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 
+const PRIMARY_SKILLS = [
+  { value: 'Plumbing', labelKey: 'plumbing' },
+  { value: 'Electrical', labelKey: 'electrical' },
+  { value: 'AC Repair', labelKey: 'acRepair' },
+  { value: 'Cleaning', labelKey: 'cleaning' },
+  { value: 'Carpentry', labelKey: 'carpentry' },
+  { value: 'Painting', labelKey: 'painting' },
+  { value: 'Appliance Repair', labelKey: 'applianceRepair' },
+  { value: 'Home Caregiver', labelKey: 'homeCaregiver' },
+  { value: 'Driver', labelKey: 'driver' },
+  { value: 'Gardening', labelKey: 'gardening' },
+  { value: 'Beauty & Salon', labelKey: 'beautySalon' },
+  { value: 'Home Cook', labelKey: 'homeCook' },
+  { value: 'Dishwashing', labelKey: 'dishwashing' }
+];
+
 export default function Register() {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -40,6 +56,7 @@ export default function Register() {
   return (
     <div className="auth-page">
       <div className="auth-card animate-in" style={{ maxWidth: '500px' }}>
+        <button type="button" className="public-back-button" onClick={() => navigate(-1)}>← {t('nav.back')}</button>
         <h1>{t('auth.join')}</h1>
         <p className="subtitle">{t('auth.createStart', { activity: form.role === 'worker' ? t('auth.earning') : t('auth.bookingServices') })}</p>
 
@@ -82,10 +99,9 @@ export default function Register() {
                   <label>{t('auth.primarySkill')}</label>
                   <select name="primarySkill" value={form.primarySkill} onChange={handleChange} required>
                     <option value="">{t('auth.selectSkill')}</option>
-                    <option>Plumbing</option><option>Electrical</option><option>AC Repair</option>
-                    <option>Cleaning</option><option>Carpentry</option><option>Painting</option>
-                    <option>Appliance Repair</option><option>Home Caregiver</option><option>Driver</option>
-                    <option>Gardening</option><option>Beauty & Salon</option>
+                    {PRIMARY_SKILLS.map(({ value, labelKey }) => (
+                      <option key={value} value={value}>{t(`auth.skills.${labelKey}`)}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="form-group">

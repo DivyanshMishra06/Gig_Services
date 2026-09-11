@@ -16,6 +16,7 @@ const BookingPage = lazy(() => import('./pages/customer/BookingPage'));
 const ProviderProfile = lazy(() => import('./pages/customer/ProviderProfile'));
 const Chat = lazy(() => import('./pages/customer/Chat'));
 const MyBookings = lazy(() => import('./pages/customer/MyBookings'));
+const HelpSupport = lazy(() => import('./pages/customer/HelpSupport'));
 const WorkerDashboard = lazy(() => import('./pages/worker/Dashboard'));
 const WorkerEarnings = lazy(() => import('./pages/worker/Earnings'));
 const WorkerWelfare = lazy(() => import('./pages/worker/Welfare'));
@@ -24,6 +25,7 @@ const AdminWorkers = lazy(() => import('./pages/admin/Workers'));
 const AdminForecast = lazy(() => import('./pages/admin/Forecast'));
 const Profile = lazy(() => import('./pages/Profile'));
 const WorkerInfo = lazy(() => import('./pages/WorkerInfo'));
+const ComingSoon = lazy(() => import('./pages/ComingSoon'));
 
 function AppLoader() {
   return <div className="app-loader" role="status" aria-label="Loading ActiveSetu"><img src={activeSetuLogo} alt="ActiveSetu — Connecting People. Empowering Work." /></div>;
@@ -71,16 +73,21 @@ function AppRoutes() {
       <Route path="/register" element={user ? <Navigate to={getDefaultDashboard()} /> : <Register />} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
       <Route path="/for-workers/:topic" element={<WorkerInfo />} />
+      <Route path="/about" element={<ComingSoon />} />
+      <Route path="/mission" element={<ComingSoon />} />
+      <Route path="/blog" element={<ComingSoon />} />
+      <Route path="/contact" element={<ComingSoon />} />
 
       {/* Customer routes */}
       <Route path="/dashboard" element={<ProtectedRoute roles={['customer']}><CustomerDashboard /></ProtectedRoute>} />
-      <Route path="/services" element={<ProtectedRoute roles={['customer']}><ServiceBrowse /></ProtectedRoute>} />
-      <Route path="/workers" element={<ProtectedRoute roles={['customer']}><WorkerSearch /></ProtectedRoute>} />
-      <Route path="/workers/:workerId" element={<ProtectedRoute roles={['customer']}><ProviderProfile /></ProtectedRoute>} />
+      <Route path="/services" element={<ServiceBrowse />} />
+      <Route path="/workers" element={<WorkerSearch />} />
+      <Route path="/workers/:workerId" element={<ProviderProfile />} />
       <Route path="/book/:workerId" element={<ProtectedRoute roles={['customer']}><BookingPage /></ProtectedRoute>} />
       <Route path="/chat" element={<ProtectedRoute roles={['customer']}><Chat /></ProtectedRoute>} />
       <Route path="/chat/:providerId" element={<ProtectedRoute roles={['customer']}><Chat /></ProtectedRoute>} />
       <Route path="/bookings" element={<ProtectedRoute roles={['customer']}><MyBookings /></ProtectedRoute>} />
+      <Route path="/help-support" element={<ProtectedRoute roles={['customer']}><HelpSupport /></ProtectedRoute>} />
 
       {/* Worker routes */}
       <Route path="/worker" element={<ProtectedRoute roles={['worker']}><WorkerDashboard /></ProtectedRoute>} />

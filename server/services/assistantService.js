@@ -128,7 +128,7 @@ async function searchWorkers({ skill, city }) {
 }
 
 async function findServices({ skill }) {
-  const query = { isActive: true };
+  const query = { isActive: true, name: { $ne: 'Pest Control' } };
   if (skill) {
     query.$or = [
       { name: { $regex: skill, $options: 'i' } },
@@ -169,7 +169,7 @@ function buildAction({ parsed, workers, user }) {
 }
 
 async function runAssistant({ message, history, user, language = 'en' }) {
-  const services = await Service.find({ isActive: true }).select('name category description basePrice').sort({ popularity: -1 });
+  const services = await Service.find({ isActive: true, name: { $ne: 'Pest Control' } }).select('name category description basePrice').sort({ popularity: -1 });
   const serviceCatalog = services.map(sanitizeService);
   const userCity = user?.location?.city || null;
   const loggedIn = Boolean(user);

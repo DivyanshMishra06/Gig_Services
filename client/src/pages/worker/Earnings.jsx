@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getWorkerEarnings } from '../../services/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 export default function WorkerEarnings() {
+  const { t } = useTranslation();
   const [earnings, setEarnings] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,8 +31,8 @@ export default function WorkerEarnings() {
   return (
     <div style={{ padding: '32px 24px', maxWidth: '1200px', margin: '0 auto' }}>
       <div className="page-header">
-        <h1>Earnings</h1>
-        <p>Track your income and cooperative contributions</p>
+        <h1>{t('workerEarnings.title')}</h1>
+        <p>{t('workerEarnings.subtitle')}</p>
       </div>
 
       {/* Earnings Overview */}
@@ -38,29 +40,29 @@ export default function WorkerEarnings() {
         <div className="stat-card">
           <div className="stat-icon">💰</div>
           <div className="stat-value" style={{ color: 'var(--accent)' }}>₹{data.today?.toLocaleString()}</div>
-          <div className="stat-label">Today's Earnings</div>
+          <div className="stat-label">{t('workerEarnings.todaysEarnings')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon">📅</div>
           <div className="stat-value">₹{data.weekly?.toLocaleString()}</div>
-          <div className="stat-label">This Week</div>
+          <div className="stat-label">{t('workerEarnings.thisWeek')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon">📊</div>
           <div className="stat-value">₹{data.monthly?.toLocaleString()}</div>
-          <div className="stat-label">This Month</div>
+          <div className="stat-label">{t('workerEarnings.thisMonth')}</div>
         </div>
         <div className="stat-card">
           <div className="stat-icon">🏆</div>
           <div className="stat-value">₹{data.total?.toLocaleString()}</div>
-          <div className="stat-label">Total Earned</div>
+          <div className="stat-label">{t('workerEarnings.totalEarned')}</div>
         </div>
       </div>
 
       <div className="grid-2" style={{ marginBottom: '32px' }}>
         {/* Earnings Chart */}
         <div className="chart-container">
-          <h3>Monthly Earnings</h3>
+          <h3>{t('workerEarnings.monthlyEarnings')}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={data.history}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
@@ -68,7 +70,7 @@ export default function WorkerEarnings() {
               <YAxis stroke="#94A39A" fontSize={12} tickFormatter={v => `₹${(v/1000)}k`} />
               <Tooltip
                 contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E9E4', borderRadius: '8px', color: '#17221B', boxShadow: '0 4px 12px rgba(23,34,27,0.08)' }}
-                formatter={(value) => [`₹${value.toLocaleString()}`, 'Earnings']}
+                formatter={(value) => [`₹${value.toLocaleString()}`, t('workerEarnings.earningsTooltip')]}
               />
               <Bar dataKey="earnings" fill="#0B8F4D" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -77,7 +79,7 @@ export default function WorkerEarnings() {
 
         {/* Jobs Chart */}
         <div className="chart-container">
-          <h3>Jobs Completed</h3>
+          <h3>{t('workerEarnings.jobsCompleted')}</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={data.history}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
@@ -94,27 +96,27 @@ export default function WorkerEarnings() {
 
       {/* Breakdown */}
       <div className="card">
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '20px' }}>Monthly Breakdown</h3>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '20px' }}>{t('workerEarnings.monthlyBreakdown')}</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Gross Earnings</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{t('workerEarnings.grossEarnings')}</span>
             <span style={{ fontWeight: 700 }}>₹{data.monthly?.toLocaleString()}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Cooperative Contribution (5%)</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{t('workerEarnings.cooperativeContribution')}</span>
             <span style={{ fontWeight: 700, color: 'var(--warning)' }}>-₹{data.cooperativeContribution?.toLocaleString()}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Platform Fee (0%)</span>
+            <span style={{ color: 'var(--text-secondary)' }}>{t('workerEarnings.platformFee')}</span>
             <span style={{ fontWeight: 700, color: 'var(--success)' }}>₹0</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', padding: '16px 0' }}>
-            <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>Net Earnings</span>
+            <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>{t('workerEarnings.netEarnings')}</span>
             <span style={{ fontWeight: 800, fontSize: '1.3rem', color: 'var(--accent)' }}>₹{data.netEarnings?.toLocaleString()}</span>
           </div>
         </div>
         <div style={{ marginTop: '16px', padding: '16px', background: 'rgba(11,143,77,0.06)', borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: 'var(--success)' }}>
-          💡 Unlike gig platforms that take 20-30% commission, ActiveSetu cooperatives only charge 5% which goes to your welfare fund.
+          💡 {t('workerEarnings.cooperativeMessage')}
         </div>
       </div>
     </div>
