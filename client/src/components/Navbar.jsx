@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Moon, Sun, UserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import activeSetuMark from '../assets/activesetu-navbar-white.png';
+import activeSetuMark from '../assets/ActiveSetuNG.png';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
