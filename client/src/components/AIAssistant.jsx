@@ -103,7 +103,7 @@ export default function AIAssistant() {
       {open && (
         <div className="ai-panel" role="dialog" aria-label="ActiveSetu AI Assistant">
           <div className="ai-panel-header">
-            <span>🤖 ActiveSetu AI Assistant</span>
+            <span>🤖 {t('assistant.title')}</span>
             <button type="button" className="ai-panel-close" onClick={() => setOpen(false)} aria-label={t('assistant.close')}>
               ×
             </button>
@@ -197,7 +197,7 @@ export default function AIAssistant() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
       >
-        {open ? `✕ ${t('assistant.close')}` : '🤖 Ask ActiveSetu'}
+        {open ? `✕ ${t('assistant.close')}` : `🤖 ${t('assistant.ask')}`}
       </button>
     </div>
   );

@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { getWorkers } from '../../services/api';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { getNearbyWorkers, getWorkers } from '../../services/api';
+import LocationPicker from '../../components/LocationPicker';
 import { useTranslation } from 'react-i18next';
 
 export default function WorkerSearch() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [workers, setWorkers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [skill, setSkill] = useState(searchParams.get('skill') || '');
   const [sort, setSort] = useState('');
+  const [location, setLocation] = useState(null);
   const city = searchParams.get('city') || '';
 
   useEffect(() => {
@@ -18,7 +21,7 @@ export default function WorkerSearch() {
 
   useEffect(() => {
     loadWorkers();
-  }, [skill, sort, city]);
+  }, [skill, sort, city, location]);
 
   const loadWorkers = async () => {
     setLoading(true);
@@ -28,7 +31,14 @@ export default function WorkerSearch() {
       if (city) params.city = city;
       if (sort) params.sort = sort;
       params.verified = 'true';
-      const { data } = await getWorkers(params);
+      const { data } = location?.coordinates?.length === 2
+        ? await getNearbyWorkers({
+          longitude: location.coordinates[0],
+          latitude: location.coordinates[1],
+          radius: 20,
+          ...(skill ? { skill } : {})
+        })
+        : await getWorkers(params);
       setWorkers(data || []);
     } catch (e) { console.error(e); }
     setLoading(false);
@@ -36,6 +46,7 @@ export default function WorkerSearch() {
 
   return (
     <div style={{ padding: '32px 24px', maxWidth: '1200px', margin: '0 auto' }}>
+      <button type="button" className="public-back-button" onClick={() => navigate(-1)}>← {t('nav.back')}</button>
       <div className="page-header">
         <h1>{t('search.title', { skill: skill ? ` — ${skill}` : '', city: city ? t('search.inCity', { city }) : '' })}</h1>
         <p>{t('search.subtitle')}</p>
@@ -56,6 +67,10 @@ export default function WorkerSearch() {
           <option value="rating">{t('common.topRated')}</option>
           <option value="price">{t('common.lowestPrice')}</option>
         </select>
+      </div>
+      <div style={{ maxWidth: '620px', marginBottom: '20px' }}>
+        <LocationPicker value={location} onChange={setLocation} />
+        {location && <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginTop: '6px' }}>{t('search.locationHint')}</p>}
       </div>
 
       {loading ? (
@@ -89,7 +104,7 @@ export default function WorkerSearch() {
                 <div className="worker-meta-item">⭐ <span className="value">{w.rating || '0'}</span> ({w.totalRatings || 0})</div>
                 <div className="worker-meta-item">🛠️ <span className="value">{w.experience || 0}</span> {t('search.years')}</div>
                 <div className="worker-meta-item">✅ <span className="value">{w.completedJobs || 0}</span> {t('search.jobs')}</div>
-                {w._distance && <div className="worker-meta-item">📍 <span className="value">{w._distance}</span> km</div>}
+                {(w.distance ?? w._distance) !== undefined && <div className="worker-meta-item">📍 <span className="value">{w.distance ?? w._distance}</span> {t('search.kmAway')}</div>}
               </div>
 
               {w.cooperativeName && (
@@ -110,7 +125,7 @@ export default function WorkerSearch() {
                   <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}> {t('common.onwards')}</span>
                 </div>
                 <div style={{ display: 'flex', gap: '8px' }}>
-                  <Link to={`/workers/${w._id}`} className="btn btn-secondary btn-sm">View profile</Link>
+                  <Link to={`/workers/${w._id}`} className="btn btn-secondary btn-sm">{t('search.viewProfile')}</Link>
                   <Link to={`/book/${w._id}`} className="btn btn-primary btn-sm">{t('common.bookNow')}</Link>
                 </div>
               </div>

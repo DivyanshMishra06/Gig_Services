@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { getWorkers, getWorkerById, updateWorker, updateAvailability, getWorkerEarnings, getWorkerWelfare } = require('../controllers/workerController');
+const { getWorkers, getNearbyWorkers, getWorkerById, updateWorker, updateAvailability, getWorkerEarnings, getWorkerWelfare } = require('../controllers/workerController');
 const { protect, authorize } = require('../middleware/auth');
 
 router.get('/', getWorkers);
+router.get('/nearby', getNearbyWorkers);
 router.get('/earnings', protect, authorize('worker'), getWorkerEarnings);
 router.get('/welfare', protect, authorize('worker'), getWorkerWelfare);
 router.get('/:id', getWorkerById);

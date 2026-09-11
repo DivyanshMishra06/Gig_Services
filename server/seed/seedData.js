@@ -21,8 +21,9 @@ const services = [
   { name: 'Home Caregiver', nameHi: 'होम केयरगिवर', category: 'Care', description: 'Elderly care, patient care, companionship', descriptionHi: 'बुजुर्गों की देखभाल', icon: '🏥', basePrice: 599, popularity: 65 },
   { name: 'Driver', nameHi: 'ड्राइवर', category: 'Transport', description: 'Personal driver, outstation, daily commute', descriptionHi: 'पर्सनल ड्राइवर', icon: '🚗', basePrice: 499, popularity: 78 },
   { name: 'Gardening', nameHi: 'बागवानी', category: 'Home Care', description: 'Garden maintenance, plant care, landscaping', descriptionHi: 'बगीचे की देखभाल', icon: '🌿', basePrice: 299, popularity: 60 },
-  { name: 'Pest Control', nameHi: 'कीट नियंत्रण', category: 'Home Care', description: 'Cockroach, termite, mosquito treatment', descriptionHi: 'कीट नियंत्रण', icon: '🐛', basePrice: 799, popularity: 72, isEmergency: true },
-  { name: 'Beauty & Salon', nameHi: 'ब्यूटी और सैलून', category: 'Personal Care', description: 'Haircut, facial, makeup at home', descriptionHi: 'हेयरकट, फेशियल', icon: '💇', basePrice: 399, popularity: 85 }
+  { name: 'Beauty & Salon', nameHi: 'ब्यूटी और सैलून', category: 'Personal Care', description: 'Haircut, facial, makeup at home', descriptionHi: 'हेयरकट, फेशियल', icon: '💇', basePrice: 399, popularity: 85 },
+  { name: 'Home Cook', nameHi: 'होम कुक', category: 'Home Care', description: 'Skilled home cooks for fresh, hygienic everyday meals prepared at your home.', descriptionHi: 'घर पर ताज़ा और स्वच्छ रोज़ाना भोजन बनाने के लिए कुशल होम कुक।', icon: '👨‍🍳', basePrice: 299, priceLabel: 'From ₹299 / visit', popularity: 67 },
+  { name: 'Dishwashing', nameHi: 'बर्तन धुलाई', category: 'Home Care', description: 'Reliable help for washing dishes and keeping your kitchen clean and organized.', descriptionHi: 'बर्तन धोने और रसोई को साफ़ व व्यवस्थित रखने के लिए भरोसेमंद मदद।', icon: '🍽️', basePrice: 149, priceLabel: 'From ₹149 / visit', popularity: 62 }
 ];
 
 const cooperatives = [

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getDemandForecast, getWorkforceAllocation } from '../../services/api';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, Legend, Cell } from 'recharts';
+import { useTranslation } from 'react-i18next';
 
 export default function AdminForecast() {
+  const { t } = useTranslation();
   const [forecast, setForecast] = useState(null);
   const [allocation, setAllocation] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -28,14 +30,14 @@ export default function AdminForecast() {
   return (
     <div style={{ padding: '32px 24px', maxWidth: '1400px', margin: '0 auto' }}>
       <div className="page-header">
-        <h1>Demand Forecasting & Workforce Allocation</h1>
-        <p>AI-powered demand prediction and smart resource allocation</p>
+        <h1>{t('adminForecast.title')}</h1>
+        <p>{t('adminForecast.subtitle')}</p>
       </div>
 
       <div className="tabs" style={{ marginBottom: '32px' }}>
-        <button className={`tab ${tab === 'forecast' ? 'active' : ''}`} onClick={() => setTab('forecast')}>📊 Demand Forecast</button>
-        <button className={`tab ${tab === 'historical' ? 'active' : ''}`} onClick={() => setTab('historical')}>📈 Historical Trends</button>
-        <button className={`tab ${tab === 'allocation' ? 'active' : ''}`} onClick={() => setTab('allocation')}>🗺️ Workforce Allocation</button>
+        <button className={`tab ${tab === 'forecast' ? 'active' : ''}`} onClick={() => setTab('forecast')}>📊 {t('adminForecast.demandForecast')}</button>
+        <button className={`tab ${tab === 'historical' ? 'active' : ''}`} onClick={() => setTab('historical')}>📈 {t('adminForecast.historicalTrends')}</button>
+        <button className={`tab ${tab === 'allocation' ? 'active' : ''}`} onClick={() => setTab('allocation')}>🗺️ {t('adminForecast.workforceAllocation')}</button>
       </div>
 
       {/* Demand Forecast Tab */}
@@ -43,7 +45,7 @@ export default function AdminForecast() {
         <div>
           <div className="grid-2" style={{ marginBottom: '32px' }}>
             <div className="chart-container">
-              <h3>Expected Demand vs Current Workers</h3>
+              <h3>{t('adminForecast.expectedVsCurrent')}</h3>
               <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={forecastData.slice(0, 8)} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
@@ -51,20 +53,20 @@ export default function AdminForecast() {
                   <YAxis type="category" dataKey="service" stroke="#94A39A" fontSize={11} width={100} />
                   <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E9E4', borderRadius: '8px', color: '#17221B', boxShadow: '0 4px 12px rgba(23,34,27,0.08)' }} />
                   <Legend />
-                  <Bar dataKey="currentWorkers" fill="#0B8F4D" name="Current Workers" radius={[0, 4, 4, 0]} />
-                  <Bar dataKey="expectedDemand" fill="#F5823A" name="Expected Demand" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="currentWorkers" fill="#0B8F4D" name={t('adminForecast.currentWorkers')} radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="expectedDemand" fill="#F5823A" name={t('adminForecast.expectedDemand')} radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
             <div className="chart-container">
-              <h3>Growth Predictions</h3>
+              <h3>{t('adminForecast.growthPredictions')}</h3>
               <ResponsiveContainer width="100%" height={350}>
                 <BarChart data={forecastData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
                   <XAxis dataKey="service" stroke="#94A39A" fontSize={10} angle={-30} textAnchor="end" height={60} />
                   <YAxis stroke="#94A39A" fontSize={12} tickFormatter={v => `${v}%`} />
                   <Tooltip contentStyle={{ background: '#FFFFFF', border: '1px solid #E2E9E4', borderRadius: '8px', color: '#17221B', boxShadow: '0 4px 12px rgba(23,34,27,0.08)' }} formatter={v => `${v}%`} />
-                  <Bar dataKey="growthPercent" name="Growth %" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="growthPercent" name={t('adminForecast.growthPercent')} radius={[4, 4, 0, 0]}>
                     {forecastData.map((entry, i) => (
                       <Cell key={i} fill={entry.growthPercent > 0 ? '#0B8F4D' : '#E05C3A'} />
                     ))}
@@ -88,10 +90,10 @@ export default function AdminForecast() {
                   </span>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.85rem' }}>
-                  <div><span style={{ color: 'var(--text-muted)' }}>Current:</span> <strong>{f.currentWorkers}</strong></div>
-                  <div><span style={{ color: 'var(--text-muted)' }}>Expected:</span> <strong>{f.expectedDemand}</strong></div>
-                  <div><span style={{ color: 'var(--text-muted)' }}>Confidence:</span> <strong>{f.confidence}%</strong></div>
-                  <div><span style={{ color: 'var(--text-muted)' }}>Need:</span> <strong style={{ color: f.recommended > 0 ? 'var(--warning)' : 'var(--success)' }}>{f.recommended > 0 ? `+${f.recommended}` : 'OK'}</strong></div>
+                  <div><span style={{ color: 'var(--text-muted)' }}>{t('adminForecast.current')}</span> <strong>{f.currentWorkers}</strong></div>
+                  <div><span style={{ color: 'var(--text-muted)' }}>{t('adminForecast.expected')}</span> <strong>{f.expectedDemand}</strong></div>
+                  <div><span style={{ color: 'var(--text-muted)' }}>{t('adminForecast.confidence')}</span> <strong>{f.confidence}%</strong></div>
+                  <div><span style={{ color: 'var(--text-muted)' }}>{t('adminForecast.need')}</span> <strong style={{ color: f.recommended > 0 ? 'var(--warning)' : 'var(--success)' }}>{f.recommended > 0 ? `+${f.recommended}` : t('adminForecast.ok')}</strong></div>
                 </div>
               </div>
             ))}
@@ -102,7 +104,7 @@ export default function AdminForecast() {
       {/* Historical Tab */}
       {tab === 'historical' && (
         <div className="chart-container">
-          <h3>Historical Demand by Service (12 Months)</h3>
+          <h3>{t('adminForecast.historicalTitle')}</h3>
           <ResponsiveContainer width="100%" height={450}>
             <LineChart data={historicalData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(23,34,27,0.06)" />
@@ -132,7 +134,7 @@ export default function AdminForecast() {
                 <div style={{ overflowX: 'auto' }}>
                   <table className="data-table">
                     <thead>
-                      <tr><th>Service</th><th>Available</th><th>Required</th><th>Shortage</th><th>Urgency</th></tr>
+                      <tr><th>{t('adminForecast.service')}</th><th>{t('adminForecast.availableCol')}</th><th>{t('adminForecast.required')}</th><th>{t('adminForecast.shortage')}</th><th>{t('adminForecast.urgency')}</th></tr>
                     </thead>
                     <tbody>
                       {area.services.map((s, j) => (
@@ -141,7 +143,7 @@ export default function AdminForecast() {
                           <td>{s.available}</td>
                           <td>{s.required}</td>
                           <td style={{ color: s.shortage > 0 ? 'var(--danger)' : 'var(--success)', fontWeight: 600 }}>
-                            {s.shortage > 0 ? `-${s.shortage}` : '✓ OK'}
+                            {s.shortage > 0 ? `-${s.shortage}` : `✓ ${t('adminForecast.ok')}`}
                           </td>
                           <td>
                             <span className={`badge ${s.urgency === 'critical' ? 'badge-danger' : s.urgency === 'high' ? 'badge-warning' : s.urgency === 'medium' ? 'badge-info' : 'badge-success'}`}>
@@ -155,7 +157,7 @@ export default function AdminForecast() {
                 </div>
                 {area.recommendation?.length > 0 && (
                   <div style={{ marginTop: '12px', padding: '12px 16px', background: 'rgba(11,143,77,0.06)', borderRadius: 'var(--radius-md)' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', marginBottom: '4px' }}>💡 Recommendations</div>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', marginBottom: '4px' }}>💡 {t('adminForecast.recommendations')}</div>
                     {area.recommendation.map((r, k) => (
                       <div key={k} style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>• {r}</div>
                     ))}
