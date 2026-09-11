@@ -5,15 +5,17 @@ import { getServices } from '../services/api';
 import { useTranslation } from 'react-i18next';
 import activeSetuMark from '../assets/ActiveSetuNG.png';
 const services = [
-  { icon: '🔧', name: 'Plumbing', searchLabel: 'Plumbing', related: ['Plumber'] },
-  { icon: '⚡', name: 'Electrical', searchLabel: 'Electrical' },
-  { icon: '❄️', name: 'AC Repair', searchLabel: 'AC Repair', related: ['AC Service'] },
-  { icon: '🧹', name: 'Cleaning', searchLabel: 'Cleaning' },
-  { icon: '🪚', name: 'Carpentry', searchLabel: 'Carpentry' },
-  { icon: '🎨', name: 'Painting', searchLabel: 'Painting' },
-  { icon: '🔌', name: 'Appliance', searchLabel: 'Appliance Repair' },
-  { icon: '🏥', name: 'Caregiver', searchLabel: 'Caregiver' },
-  { icon: '💇', name: 'Beauty', searchLabel: 'Beauty' }
+  { icon: '🔧', name: 'Plumbing', nameKey: 'plumbing', searchLabel: 'Plumbing', related: ['Plumber'] },
+  { icon: '⚡', name: 'Electrical', nameKey: 'electrical', searchLabel: 'Electrical' },
+  { icon: '❄️', name: 'AC Repair', nameKey: 'acRepair', searchLabel: 'AC Repair', related: ['AC Service'] },
+  { icon: '🧹', name: 'Cleaning', nameKey: 'cleaning', searchLabel: 'Cleaning' },
+  { icon: '🪚', name: 'Carpentry', nameKey: 'carpentry', searchLabel: 'Carpentry' },
+  { icon: '🎨', name: 'Painting', nameKey: 'painting', searchLabel: 'Painting' },
+  { icon: '🔌', name: 'Appliance', nameKey: 'appliance', searchLabel: 'Appliance Repair' },
+  { icon: '🏥', name: 'Caregiver', nameKey: 'caregiver', searchLabel: 'Caregiver' },
+  { icon: '💇', name: 'Beauty', nameKey: 'beauty', searchLabel: 'Beauty' },
+  { icon: '👨‍🍳', name: 'Home Cook', nameKey: 'homeCook', searchLabel: 'Home Cook' },
+  { icon: '🍽️', name: 'Dishwashing', nameKey: 'dishwashing', searchLabel: 'Dishwashing' }
 ];
 
 function uniqueSuggestions(items) {
@@ -27,12 +29,12 @@ function uniqueSuggestions(items) {
 }
 
 const features = [
-  { icon: '🤝', title: 'Worker-Owned Cooperatives', desc: 'Workers own and govern their cooperatives, ensuring fair pay, dignity, and decision-making power.' },
-  { icon: '🛡️', title: 'Welfare & Insurance', desc: 'Every verified worker gets health insurance, accident coverage, and access to emergency support funds.' },
-  { icon: '📊', title: 'AI Demand Forecasting', desc: 'Seasonal demand prediction and smart workforce allocation ensures workers always have steady jobs.' },
-  { icon: '⭐', title: 'Skill Verification', desc: 'Government ID and skill verification builds trust. Customers get certified, reliable workers.' },
-  { icon: '🌐', title: 'Multilingual Support', desc: 'Available in Hindi and English so every user and worker can access the platform in their language.' },
-  { icon: '🚨', title: 'Emergency Services', desc: 'Need urgent help? Our emergency booking system connects you with the nearest available worker instantly.' }
+  { icon: '🤝', titleKey: 'cooperativeTitle', descriptionKey: 'cooperativeDescription' },
+  { icon: '🛡️', titleKey: 'welfareTitle', descriptionKey: 'welfareDescription' },
+  { icon: '📊', titleKey: 'forecastTitle', descriptionKey: 'forecastDescription' },
+  { icon: '⭐', titleKey: 'verificationTitle', descriptionKey: 'verificationDescription' },
+  { icon: '🌐', titleKey: 'multilingualTitle', descriptionKey: 'multilingualDescription' },
+  { icon: '🚨', titleKey: 'emergencyTitle', descriptionKey: 'emergencyDescription' }
 ];
 
 export default function Landing() {
@@ -42,7 +44,6 @@ export default function Landing() {
   const [searchParams] = useSearchParams();
   const focusSearch = searchParams.get('focusSearch') === 'true';
 
-  const [showSignupPrompt, setShowSignupPrompt] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [remoteServices, setRemoteServices] = useState([]);
@@ -80,7 +81,6 @@ export default function Landing() {
   }, [user, focusSearch]);
 
   useEffect(() => {
-    if (!user) return;
     getServices()
       .then((res) => {
         if (res.data?.length) setRemoteServices(res.data);
@@ -90,16 +90,15 @@ export default function Landing() {
 
   // Close prompt / suggestions when clicking outside
   useEffect(() => {
-    if (!showSignupPrompt && !showSuggestions) return;
+    if (!showSuggestions) return;
     const handleClickOutside = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
-        setShowSignupPrompt(false);
         setShowSuggestions(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showSignupPrompt, showSuggestions]);
+  }, [showSuggestions]);
 
   const handleSearch = (e) => {
     e?.preventDefault();
@@ -128,8 +127,8 @@ export default function Landing() {
               {t('landing.heroDescription')}
             </p>
 
-            {/* Search Box — functional for logged-in users, signup prompt for guests */}
-            {user ? (
+            {/* Search is available to all visitors; booking remains protected. */}
+            {(
               <form className="hero-search" onSubmit={handleSearch} ref={searchRef} autoComplete="off">
                 <div className="hero-search-inner">
                   <span className="hero-search-icon">🔍</span>
@@ -180,30 +179,12 @@ export default function Landing() {
                   </ul>
                 )}
               </form>
-            ) : (
-              <div className="hero-search" ref={searchRef} onClick={() => setShowSignupPrompt(true)} style={{ cursor: 'pointer' }}>
-                <div className="hero-search-inner">
-                  <span className="hero-search-icon">🔍</span>
-                  <div className="hero-search-text">{t('landing.needHelp')}</div>
-                  <span className="btn btn-primary">{t('common.search')}</span>
-                </div>
-                {showSignupPrompt && (
-                  <div className="search-signup-prompt animate-fade" onClick={(e) => e.stopPropagation()}>
-                    <div className="search-signup-icon">🔒</div>
-                    <h3>{t('landing.signupTitle')}</h3>
-                    <p>{t('landing.signupText')}</p>
-                    <div className="search-signup-actions">
-                      <Link to="/register?from=search" className="btn btn-primary">{t('landing.signupFree')}</Link>
-                      <Link to="/login?from=search" className="btn btn-secondary">{t('landing.alreadyAccount')}</Link>
-                    </div>
-                  </div>
-                )}
-              </div>
             )}
 
-            <div className="hero-actions">
-              <Link to="/register" className="btn btn-primary btn-lg">{t('landing.findWorker')}</Link>
-              <Link to="/register?role=worker" className="btn btn-accent btn-lg">{t('landing.findWork')}</Link>
+            <div className="hero-trust-badges" aria-label="ActiveSetu benefits">
+              <span>✓ {t('landing.trust.verifiedWorkers')}</span>
+              <span>✓ {t('landing.trust.transparentPricing')}</span>
+              <span>✓ {t('landing.trust.workerWelfare')}</span>
             </div>
             <div className="hero-stats">
               <div className="hero-stat-item">
@@ -225,7 +206,7 @@ export default function Landing() {
               {services.map((s, i) => (
                 <div className="service-bubble" key={i} style={{ animationDelay: `${i * 0.05}s` }}>
                   <div className="icon">{s.icon}</div>
-                  <div className="name">{s.name}</div>
+                  <div className="name">{t(`landing.serviceNames.${s.nameKey}`)}</div>
                 </div>
               ))}
             </div>
@@ -244,8 +225,8 @@ export default function Landing() {
             {features.map((f, i) => (
               <div className="feature-card" key={i}>
                 <div className="feature-icon">{f.icon}</div>
-                <h3>{f.title}</h3>
-                <p>{f.desc}</p>
+                <h3>{t(`landing.features.${f.titleKey}`)}</h3>
+                <p>{t(`landing.features.${f.descriptionKey}`)}</p>
               </div>
             ))}
           </div>
@@ -253,7 +234,7 @@ export default function Landing() {
       </section>
 
       {/* How it works */}
-      <section className="section">
+      <section className="section" id="how-it-works">
         <div className="container">
           <div className="section-header">
             <h2>{t('landing.how')}</h2>
@@ -261,15 +242,15 @@ export default function Landing() {
           </div>
           <div className="grid-3">
             {[
-              { step: '01', icon: '🔍', title: 'Choose a Service', desc: 'Browse 12+ service categories. Our AI matches you with the best nearby worker.' },
-              { step: '02', icon: '📅', title: 'Book & Schedule', desc: 'Pick a time, describe the job, and book instantly. Emergency? We\'ve got you covered.' },
-              { step: '03', icon: '✅', title: 'Get It Done', desc: 'Verified worker arrives, completes the job. Pay fairly. Rate and support the cooperative.' }
+              { step: '01', icon: '🔍', titleKey: 'chooseTitle', descriptionKey: 'chooseDescription' },
+              { step: '02', icon: '📅', titleKey: 'bookTitle', descriptionKey: 'bookDescription' },
+              { step: '03', icon: '✅', titleKey: 'doneTitle', descriptionKey: 'doneDescription' }
             ].map((item, i) => (
               <div className="card" key={i} style={{ textAlign: 'center', padding: '40px 28px' }}>
                 <div style={{ fontSize: '3rem', marginBottom: '16px' }}>{item.icon}</div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700, letterSpacing: '2px', marginBottom: '8px' }}>STEP {item.step}</div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '12px' }}>{item.title}</h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{item.desc}</p>
+                <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700, letterSpacing: '2px', marginBottom: '8px' }}>{t('landing.steps.label', { number: item.step })}</div>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '12px' }}>{t(`landing.steps.${item.titleKey}`)}</h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{t(`landing.steps.${item.descriptionKey}`)}</p>
               </div>
             ))}
           </div>
@@ -281,41 +262,38 @@ export default function Landing() {
         <div className="container">
           <div className="ai-section-inner">
             <div className="ai-section-text">
-              <div className="ai-badge">🤖 AI-Powered</div>
-              <h2>Smart Matching, Instant Booking</h2>
-              <p>
-                Our AI assistant matches you with the best available worker based on skills, ratings, location and availability.
-                Just tell us what you need — we'll handle the rest.
-              </p>
+              <div className="ai-badge">🤖 {t('landing.ai.badge')}</div>
+              <h2>{t('landing.ai.title')}</h2>
+              <p>{t('landing.ai.description')}</p>
               <ul className="ai-features-list">
-                <li><span className="check">✓</span> Smart worker-job matching based on skill & proximity</li>
-                <li><span className="check">✓</span> AI demand forecasting for fair wages</li>
-                <li><span className="check">✓</span> Instant price estimates & emergency booking</li>
-                <li><span className="check">✓</span> Seasonal workforce allocation intelligence</li>
+                <li><span className="check">✓</span> {t('landing.ai.matching')}</li>
+                <li><span className="check">✓</span> {t('landing.ai.forecasting')}</li>
+                <li><span className="check">✓</span> {t('landing.ai.estimates')}</li>
+                <li><span className="check">✓</span> {t('landing.ai.allocation')}</li>
               </ul>
             </div>
             <div className="ai-chat-preview">
               <div className="ai-chat-header">
-                <span>🤖</span> ActiveSetu AI Assistant
+                <span>🤖</span> {t('assistant.title')}
               </div>
               <div className="ai-chat-msg">
                 <div className="ai-chat-avatar user-av">👤</div>
-                <div className="ai-chat-bubble user-msg">I need a plumber near Bareilly for a pipe leak</div>
+                <div className="ai-chat-bubble user-msg">{t('landing.ai.userRequest')}</div>
               </div>
               <div className="ai-chat-msg">
                 <div className="ai-chat-avatar bot-av">🤖</div>
                 <div className="ai-chat-bubble bot-msg">
-                  Found 3 verified plumbers near you! Ramesh Kumar (⭐ 4.8, 5 yrs exp) from Bareilly Skilled Workers Cooperative is available now. Estimated cost: ₹299–499.
+                  {t('landing.ai.assistantResponse')}
                 </div>
               </div>
               <div className="ai-chat-msg">
                 <div className="ai-chat-avatar user-av">👤</div>
-                <div className="ai-chat-bubble user-msg">Book Ramesh for 10 AM tomorrow</div>
+                <div className="ai-chat-bubble user-msg">{t('landing.ai.bookingRequest')}</div>
               </div>
               <div className="ai-chat-msg">
                 <div className="ai-chat-avatar bot-av">🤖</div>
                 <div className="ai-chat-bubble bot-msg">
-                  ✅ Done! Booking confirmed with Ramesh Kumar for tomorrow at 10 AM. You'll receive a confirmation shortly.
+                  ✅ {t('landing.ai.bookingResponse')}
                 </div>
               </div>
             </div>
@@ -327,8 +305,8 @@ export default function Landing() {
       <section className="cta-section">
         <div className="container">
           <div className="cta-box">
-            <h2>Ready to Make a Difference?</h2>
-            <p>Join the cooperative movement. Better pay, better services, better future.</p>
+            <h2>{t('landing.ctaTitle')}</h2>
+            <p>{t('landing.ctaDescription')}</p>
             <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', position: 'relative' }}>
               <Link to="/register" className="btn btn-accent btn-lg">{t('landing.createAccount')}</Link>
               <Link to="/login" className="btn btn-lg" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none' }}>{t('landing.signIn')}</Link>
@@ -342,28 +320,28 @@ export default function Landing() {
         <div className="footer-content">
           <div className="footer-brand">
             <div className="logo footer-logo"><img src={activeSetuMark} alt="ActiveSetu" /> <span>Active<span>Setu</span></span></div>
-            <p className="brand-description">Find trusted local service professionals and opportunities in one place.</p>
+            <p className="brand-description">{t('landing.footerDescription')}</p>
           </div>
           <div className="footer-col">
-            <h4>Services</h4>
-            <Link to="/workers?skill=Plumbing">Plumbing</Link>
-            <Link to="/workers?skill=Electrical">Electrical</Link>
-            <Link to="/workers?skill=AC%20Repair">AC Repair</Link>
-            <Link to="/workers?skill=Cleaning">Cleaning</Link>
+            <h4>{t('landing.footerServices')}</h4>
+            <Link to="/workers?skill=Plumbing">{t('landing.serviceNames.plumbing')}</Link>
+            <Link to="/workers?skill=Electrical">{t('landing.serviceNames.electrical')}</Link>
+            <Link to="/workers?skill=AC%20Repair">{t('landing.serviceNames.acRepair')}</Link>
+            <Link to="/workers?skill=Cleaning">{t('landing.serviceNames.cleaning')}</Link>
           </div>
           <div className="footer-col">
-            <h4>Company</h4>
-            <a href="#">About Us</a><a href="#">Careers</a><a href="#">Blog</a><a href="#">Contact</a>
+            <h4>{t('footer.company')}</h4>
+            <Link to="/about">{t('footer.about')}</Link><Link to="/mission">{t('footer.mission')}</Link><Link to="/blog">{t('footer.blog')}</Link><Link to="/contact">{t('footer.contact')}</Link>
           </div>
           <div className="footer-col">
-            <h4>For Workers</h4>
-            <Link to="/register?role=worker">Join Cooperative</Link>
-            <Link to="/for-workers/training">Training</Link>
-            <Link to="/for-workers/welfare">Welfare Benefits</Link>
-            <Link to="/for-workers/partner">Partner</Link>
+            <h4>{t('landing.footerWorkers')}</h4>
+            <Link to="/register?role=worker">{t('landing.joinCooperative')}</Link>
+            <Link to="/for-workers/training">{t('landing.training')}</Link>
+            <Link to="/for-workers/welfare">{t('landing.welfareBenefits')}</Link>
+            <Link to="/for-workers/partner">{t('landing.partner')}</Link>
           </div>
         </div>
-        <div className="footer-bottom brand-footer">© 2026 ActiveSetu. Connecting People. Empowering Work.</div>
+        <div className="footer-bottom brand-footer">{t('landing.copyright')}</div>
       </footer>
     </div>
   );

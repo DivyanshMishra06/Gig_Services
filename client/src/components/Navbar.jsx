@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Moon, Sun, UserRound } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import activeSetuMark from '../assets/ActiveSetuNG.png';
@@ -11,6 +11,8 @@ export default function Navbar() {
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
   const [theme, setTheme] = useState(() => localStorage.getItem('activesetu_theme') || 'light');
 
   useEffect(() => {
@@ -23,13 +25,7 @@ export default function Navbar() {
   const themeToggle = (className = '') => {
     const isDark = theme === 'dark';
     return (
-      <button
-        type="button"
-        className={`theme-toggle ${className}`}
-        onClick={toggleTheme}
-        aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-        title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-      >
+      <button type="button" className={`theme-toggle ${className}`} onClick={toggleTheme} aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`} title={`Switch to ${isDark ? 'light' : 'dark'} mode`}>
         {isDark ? <Sun size={17} aria-hidden="true" /> : <Moon size={17} aria-hidden="true" />}
         <span>{isDark ? 'Light' : 'Dark'}</span>
       </button>
@@ -51,10 +47,30 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     setMobileOpen(false);
+    setProfileMenuOpen(false);
     navigate('/');
   };
 
   const closeMobileMenu = () => setMobileOpen(false);
+
+  useEffect(() => {
+    const closeProfileMenu = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape') setProfileMenuOpen(false);
+    };
+
+    document.addEventListener('mousedown', closeProfileMenu);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('mousedown', closeProfileMenu);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, []);
 
   // Hide navbar on landing if not logged in
   const isLanding = location.pathname === '/' && !user;
@@ -67,7 +83,7 @@ export default function Navbar() {
         { path: '/services', label: t('nav.services') },
         { path: '/workers', label: t('nav.findWorkers') },
         { path: '/bookings', label: t('nav.bookings') },
-        { path: '/chat', label: 'Chat' }
+        { path: '/chat', label: t('nav.chat') }
       ];
     }
     if (user.role === 'worker') {
@@ -87,26 +103,41 @@ export default function Navbar() {
     return [];
   };
 
+  const publicNavLinks = [
+    { path: '/', label: t('nav.home') },
+    { path: '/services', label: t('nav.services') },
+    { path: '/workers', label: t('nav.findWorkers') },
+    { path: '/#how-it-works', label: t('nav.howItWorks') },
+    { path: '/register?role=worker', label: t('nav.becomeWorker') }
+  ];
+
   const mobileMenu = (
     <div className={`mobile-menu ${mobileOpen ? 'open' : ''}`}>
-      {getNavLinks().map((link) => (
-        <Link key={link.path} to={link.path} className={location.pathname === link.path ? 'active' : ''} onClick={closeMobileMenu}>{link.label}</Link>
+      {(isLanding ? publicNavLinks : getNavLinks()).map((link) => (
+        link.path.includes('#')
+          ? <a key={link.path} href={link.path} onClick={closeMobileMenu}>{link.label}</a>
+          : <Link key={link.path} to={link.path} className={location.pathname === link.path ? 'active' : ''} onClick={closeMobileMenu}>{link.label}</Link>
       ))}
       {languageSelector('mobile-language-select')}
       {themeToggle('mobile-theme-toggle')}
-      {user ? <><Link to="/profile" onClick={closeMobileMenu}>My Profile</Link><button type="button" onClick={handleLogout}>{t('nav.logout')}</button></> : <><Link to="/login" onClick={closeMobileMenu}>{t('nav.login')}</Link><Link to="/register" onClick={closeMobileMenu}>{t('nav.getStarted')}</Link></>}
+      {user ? <><Link to="/profile" onClick={closeMobileMenu}>{t('nav.profile')}</Link><button type="button" onClick={handleLogout}>{t('nav.logout')}</button></> : <><Link to="/login" onClick={closeMobileMenu}>{t('nav.login')}</Link><Link to="/register" onClick={closeMobileMenu}>{t('nav.getStarted')}</Link></>}
     </div>
   );
 
   if (isLanding) {
     return (
-      <nav className="navbar">
+      <nav className="navbar navbar-public">
         <div className="navbar-inner">
           <Link to="/" className="navbar-brand">
             <img src={activeSetuMark} alt="ActiveSetu" className="brand-mark" />
             <span className="brand-name">Active<span>Setu</span></span>
           </Link>
-          <div className="navbar-links navbar-links-desktop">
+          <div className="navbar-links navbar-links-desktop navbar-links-public">
+            {publicNavLinks.map((link) => (
+              link.path.includes('#')
+                ? <a key={link.path} href={link.path}>{link.label}</a>
+                : <Link key={link.path} to={link.path} className={location.pathname === link.path ? 'active' : ''}>{link.label}</Link>
+            ))}
             {languageSelector('desktop-language-select')}
             {themeToggle()}
             <Link to="/login" className="btn btn-ghost">{t('nav.login')}</Link>
@@ -142,15 +173,29 @@ export default function Navbar() {
           {themeToggle()}
         </div>
         {user && (
-          <div className="user-menu">
-            <Link to="/profile" className="user-avatar" aria-label="View your profile" title="View profile">
+          <div className="user-menu" ref={profileMenuRef}>
+            <button
+              className="user-avatar user-avatar-button"
+              type="button"
+              onClick={() => setProfileMenuOpen((isOpen) => !isOpen)}
+              aria-label="Open profile menu"
+              aria-expanded={profileMenuOpen}
+              aria-haspopup="menu"
+            >
               {user.avatar ? (
                 <img src={user.avatar} alt="" />
               ) : (
-                user.name?.charAt(0)?.toUpperCase()
+                <UserRound aria-hidden="true" />
               )}
-            </Link>
-            <button className="btn btn-ghost btn-sm" onClick={handleLogout}>{t('nav.logout')}</button>
+            </button>
+            {profileMenuOpen && (
+              <div className="profile-dropdown" role="menu" aria-label="Profile menu">
+                <Link to="/profile" role="menuitem" onClick={() => setProfileMenuOpen(false)}>{t('nav.profile')}</Link>
+                {user.role === 'customer' && <Link to="/help-support" role="menuitem" onClick={() => setProfileMenuOpen(false)}>{t('nav.helpSupport')}</Link>}
+                <div className="profile-dropdown-divider" role="separator" />
+                <button type="button" role="menuitem" onClick={handleLogout}>{t('nav.logout')}</button>
+              </div>
+            )}
           </div>
         )}
         <button className="mobile-menu-toggle" type="button" onClick={() => setMobileOpen((open) => !open)} aria-label="Toggle navigation" aria-expanded={mobileOpen}>{mobileOpen ? '✕' : '☰'}</button>
